@@ -107,3 +107,6 @@ dist
 
 # vercel
 .vercel
+
+# lint-staged
+tsconfig.lintstaged.json
