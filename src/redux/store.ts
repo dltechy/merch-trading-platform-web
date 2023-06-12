@@ -3,10 +3,7 @@ import { ToolkitStore } from '@reduxjs/toolkit/dist/configureStore';
 import { createWrapper } from 'next-redux-wrapper';
 import createSagaMiddleware, { SagaMiddleware } from 'redux-saga';
 
-import {
-  sampleReducer,
-  SampleState,
-} from '@app/modules/sample/redux/sample.slice';
+import { authReducer, AuthState } from '@app/modules/auth/redux/auth.slice';
 
 import { rootSaga } from './root.saga';
 
@@ -14,14 +11,14 @@ const sagaMiddleware = createSagaMiddleware();
 
 const makeStore = (): ToolkitStore<
   {
-    sample: SampleState;
+    auth: AuthState;
   },
   AnyAction,
   SagaMiddleware<object>[]
 > => {
   const store = configureStore({
     reducer: {
-      sample: sampleReducer,
+      auth: authReducer,
     },
     middleware: (getDefaultMiddleware) => [
       ...getDefaultMiddleware({ thunk: false }),
