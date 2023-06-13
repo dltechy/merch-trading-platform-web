@@ -1,24 +1,27 @@
 import { Formik } from 'formik';
 import { NextPage } from 'next';
 import Head from 'next/head';
-import Link from 'next/link';
 import Router from 'next/router';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { LoginDto, loginValidator } from '@app/modules/auth/dtos/login.dto';
-import {
-  checkLoginStateRequest,
-  loginRequest,
-  resetAuthState,
-} from '@app/modules/auth/redux/auth.slice';
+import { checkLoginStateRequest } from '@app/modules/auth/redux/auth.slice';
 import { FormCard } from '@app/modules/common/components/FormCard';
 import { LabelledTextBox } from '@app/modules/common/components/LabelledTextBox';
 import { PrimaryButton } from '@app/modules/common/components/PrimaryButton';
+import { SecondaryButton } from '@app/modules/common/components/SecondaryButton';
 import { InitializationState } from '@app/modules/common/states/initialization-state';
+import {
+  RegisterDto,
+  registerValidator,
+} from '@app/modules/registration/dtos/register.dto';
+import {
+  registerRequest,
+  resetRegistrationState,
+} from '@app/modules/registration/redux/registration.slice';
 import { AppState } from '@app/redux/store';
 
-const Login: NextPage = () => {
+const Register: NextPage = () => {
   // Properties
 
   const appName = process.env.NEXT_PUBLIC_APP_NAME;
@@ -29,12 +32,18 @@ const Login: NextPage = () => {
   const [isRenderAllowed, setIsRenderAllowed] = useState(false);
 
   const user = useSelector((state: AppState) => state.auth.user);
-  const isLoginLoading = useSelector(
-    (state: AppState) => state.auth.login.isLoading,
-  );
-  const loginError = useSelector((state: AppState) => state.auth.login.error);
   const isCheckLoginStateLoading = useSelector(
     (state: AppState) => state.auth.checkLoginState.isLoading,
+  );
+
+  const isRegisterTriggered = useSelector(
+    (state: AppState) => state.registration.register.isTriggered,
+  );
+  const isRegisterLoading = useSelector(
+    (state: AppState) => state.registration.register.isLoading,
+  );
+  const registerError = useSelector(
+    (state: AppState) => state.registration.register.error,
   );
 
   const dispatch = useDispatch();
@@ -45,7 +54,7 @@ const Login: NextPage = () => {
     dispatch(checkLoginStateRequest());
 
     return () => {
-      dispatch(resetAuthState());
+      dispatch(resetRegistrationState());
     };
   }, [dispatch]);
 
@@ -76,16 +85,28 @@ const Login: NextPage = () => {
     } else {
       setIsRenderAllowed(true);
     }
-  }, [initializationState, user]);
+  }, [initializationState, user, dispatch]);
 
-  // Handlers
-
-  const handleLogin = (dto: LoginDto): void => {
-    if (isLoginLoading) {
+  useEffect(() => {
+    if (!isRegisterTriggered || isRegisterLoading || registerError) {
       return;
     }
 
-    dispatch(loginRequest(dto));
+    Router.push('/login');
+  }, [isRegisterTriggered, isRegisterLoading, registerError, dispatch]);
+
+  // Handlers
+
+  const handleRegister = (dto: RegisterDto): void => {
+    if (isRegisterLoading) {
+      return;
+    }
+
+    dispatch(registerRequest(dto));
+  };
+
+  const handleCancel = (): void => {
+    Router.push('/login');
   };
 
   // Elements
@@ -97,14 +118,14 @@ const Login: NextPage = () => {
   return (
     <div className="flex h-screen flex-col items-center justify-center">
       <Head>
-        <title>{`${appName} - Login`}</title>
+        <title>{`${appName} - Registration`}</title>
       </Head>
 
-      <FormCard title={`${appName} - Login`} className="w-1/4">
-        {loginError && (
+      <FormCard title={`${appName} - Register`} className="w-1/4">
+        {registerError && (
           <p className="mb-6 font-normal italic text-red-500">
-            {(loginError.response?.data as { message?: string })?.message ??
-              loginError.message}
+            {(registerError.response?.data as { message?: string })?.message ??
+              registerError.message}
           </p>
         )}
 
@@ -112,9 +133,11 @@ const Login: NextPage = () => {
           initialValues={{
             email: '',
             password: '',
+            confirmPassword: '',
+            displayName: '',
           }}
-          validationSchema={loginValidator}
-          onSubmit={handleLogin}
+          validationSchema={registerValidator}
+          onSubmit={handleRegister}
         >
           {({
             values,
@@ -147,22 +170,36 @@ const Login: NextPage = () => {
                   onBlur={handleBlur}
                   onChange={handleChange}
                 />
+
+                <LabelledTextBox
+                  id="confirmPassword"
+                  label="Confirm password"
+                  hasError={!!errors.confirmPassword && touched.confirmPassword}
+                  error={errors.confirmPassword}
+                  type="password"
+                  value={values.confirmPassword}
+                  onBlur={handleBlur}
+                  onChange={handleChange}
+                />
+
+                <LabelledTextBox
+                  id="displayName"
+                  label="Display name"
+                  hasError={!!errors.displayName && touched.displayName}
+                  error={errors.displayName}
+                  type="text"
+                  value={values.displayName}
+                  onBlur={handleBlur}
+                  onChange={handleChange}
+                />
               </div>
 
-              <PrimaryButton
-                className="mt-8"
-                value={isLoginLoading ? 'Logging in...' : 'Login'}
-                disabled={isLoginLoading}
-              />
-
-              <div className="mt-4">
-                <span>No account yet? </span>
-                <Link
-                  className="text-blue-600 underline visited:text-purple-600 hover:text-blue-800"
-                  href="/register"
-                >
-                  Register here
-                </Link>
+              <div className="mt-8 flex flex-row-reverse space-x-4 space-x-reverse">
+                <PrimaryButton
+                  value={isRegisterLoading ? 'Registering...' : 'Register'}
+                  disabled={isRegisterLoading}
+                />
+                <SecondaryButton value="Cancel" onClick={handleCancel} />
               </div>
             </form>
           )}
@@ -172,4 +209,4 @@ const Login: NextPage = () => {
   );
 };
 
-export default Login;
+export default Register;

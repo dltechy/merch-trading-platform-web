@@ -4,6 +4,10 @@ import { createWrapper } from 'next-redux-wrapper';
 import createSagaMiddleware, { SagaMiddleware } from 'redux-saga';
 
 import { authReducer, AuthState } from '@app/modules/auth/redux/auth.slice';
+import {
+  registrationReducer,
+  RegistrationState,
+} from '@app/modules/registration/redux/registration.slice';
 
 import { rootSaga } from './root.saga';
 
@@ -12,6 +16,7 @@ const sagaMiddleware = createSagaMiddleware();
 const makeStore = (): ToolkitStore<
   {
     auth: AuthState;
+    registration: RegistrationState;
   },
   AnyAction,
   SagaMiddleware<object>[]
@@ -19,6 +24,7 @@ const makeStore = (): ToolkitStore<
   const store = configureStore({
     reducer: {
       auth: authReducer,
+      registration: registrationReducer,
     },
     middleware: (getDefaultMiddleware) => [
       ...getDefaultMiddleware({ thunk: false }),
