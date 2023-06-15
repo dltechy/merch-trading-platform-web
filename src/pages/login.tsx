@@ -7,11 +7,7 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { LoginDto, loginValidator } from '@app/modules/auth/dtos/login.dto';
-import {
-  checkLoginStateRequest,
-  loginRequest,
-  resetAuthState,
-} from '@app/modules/auth/redux/auth.slice';
+import { loginRequest } from '@app/modules/auth/redux/auth.slice';
 import { FormCard } from '@app/modules/common/components/FormCard';
 import { LabelledTextBox } from '@app/modules/common/components/LabelledTextBox';
 import { PrimaryButton } from '@app/modules/common/components/PrimaryButton';
@@ -23,48 +19,20 @@ const Login: NextPage = () => {
 
   const appName = process.env.NEXT_PUBLIC_APP_NAME;
 
-  const [initializationState, setInitializationState] = useState(
-    InitializationState.Uninitialized,
-  );
   const [isRenderAllowed, setIsRenderAllowed] = useState(false);
 
   const user = useSelector((state: AppState) => state.auth.user);
+  const initializationState = useSelector(
+    (state: AppState) => state.auth.initializationState,
+  );
   const isLoginLoading = useSelector(
     (state: AppState) => state.auth.login.isLoading,
   );
   const loginError = useSelector((state: AppState) => state.auth.login.error);
-  const isCheckLoginStateLoading = useSelector(
-    (state: AppState) => state.auth.checkLoginState.isLoading,
-  );
 
   const dispatch = useDispatch();
 
   // Effects
-
-  useEffect(() => {
-    dispatch(checkLoginStateRequest());
-
-    return () => {
-      dispatch(resetAuthState());
-    };
-  }, [dispatch]);
-
-  useEffect(() => {
-    switch (initializationState) {
-      case InitializationState.Uninitialized:
-        if (isCheckLoginStateLoading) {
-          setInitializationState(InitializationState.Initializing);
-        }
-        break;
-      case InitializationState.Initializing:
-        if (!isCheckLoginStateLoading) {
-          setInitializationState(InitializationState.Initialized);
-        }
-        break;
-      default:
-        break;
-    }
-  }, [initializationState, isCheckLoginStateLoading]);
 
   useEffect(() => {
     if (initializationState !== InitializationState.Initialized) {
@@ -100,7 +68,7 @@ const Login: NextPage = () => {
         <title>{`${appName} - Login`}</title>
       </Head>
 
-      <FormCard title={`${appName} - Login`} className="w-1/4">
+      <FormCard title="Login" className="w-1/4">
         {loginError && (
           <p className="mb-6 font-normal italic text-red-500">
             {(loginError.response?.data as { message?: string })?.message ??

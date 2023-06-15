@@ -5,7 +5,6 @@ import Router from 'next/router';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { checkLoginStateRequest } from '@app/modules/auth/redux/auth.slice';
 import { FormCard } from '@app/modules/common/components/FormCard';
 import { LabelledTextBox } from '@app/modules/common/components/LabelledTextBox';
 import { PrimaryButton } from '@app/modules/common/components/PrimaryButton';
@@ -15,10 +14,7 @@ import {
   RegisterDto,
   registerValidator,
 } from '@app/modules/registration/dtos/register.dto';
-import {
-  registerRequest,
-  resetRegistrationState,
-} from '@app/modules/registration/redux/registration.slice';
+import { registerRequest } from '@app/modules/registration/redux/registration.slice';
 import { AppState } from '@app/redux/store';
 
 const Register: NextPage = () => {
@@ -26,14 +22,11 @@ const Register: NextPage = () => {
 
   const appName = process.env.NEXT_PUBLIC_APP_NAME;
 
-  const [initializationState, setInitializationState] = useState(
-    InitializationState.Uninitialized,
-  );
   const [isRenderAllowed, setIsRenderAllowed] = useState(false);
 
   const user = useSelector((state: AppState) => state.auth.user);
-  const isCheckLoginStateLoading = useSelector(
-    (state: AppState) => state.auth.checkLoginState.isLoading,
+  const initializationState = useSelector(
+    (state: AppState) => state.auth.initializationState,
   );
 
   const isRegisterTriggered = useSelector(
@@ -49,31 +42,6 @@ const Register: NextPage = () => {
   const dispatch = useDispatch();
 
   // Effects
-
-  useEffect(() => {
-    dispatch(checkLoginStateRequest());
-
-    return () => {
-      dispatch(resetRegistrationState());
-    };
-  }, [dispatch]);
-
-  useEffect(() => {
-    switch (initializationState) {
-      case InitializationState.Uninitialized:
-        if (isCheckLoginStateLoading) {
-          setInitializationState(InitializationState.Initializing);
-        }
-        break;
-      case InitializationState.Initializing:
-        if (!isCheckLoginStateLoading) {
-          setInitializationState(InitializationState.Initialized);
-        }
-        break;
-      default:
-        break;
-    }
-  }, [initializationState, isCheckLoginStateLoading]);
 
   useEffect(() => {
     if (initializationState !== InitializationState.Initialized) {
@@ -121,7 +89,7 @@ const Register: NextPage = () => {
         <title>{`${appName} - Registration`}</title>
       </Head>
 
-      <FormCard title={`${appName} - Register`} className="w-1/4">
+      <FormCard title="Register" className="w-1/4">
         {registerError && (
           <p className="mb-6 font-normal italic text-red-500">
             {(registerError.response?.data as { message?: string })?.message ??

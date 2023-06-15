@@ -5,18 +5,21 @@ import {
   ApiState,
   initialApiState,
 } from '@app/modules/common/states/api-state';
+import { InitializationState } from '@app/modules/common/states/initialization-state';
 import { User } from '@app/modules/users/schemas/user';
 
 import { LoginDto } from '../dtos/login.dto';
 
 export interface AuthState {
   user?: User;
+  initializationState: InitializationState;
   login: ApiState;
   logout: ApiState;
   checkLoginState: ApiState;
 }
 
 const initialState: AuthState = {
+  initializationState: InitializationState.Uninitialized,
   login: { ...initialApiState },
   logout: { ...initialApiState },
   checkLoginState: { ...initialApiState },
@@ -31,6 +34,7 @@ export const authSlice = createSlice({
       action: PayloadAction<
         | {
             user?: boolean;
+            initializationState?: boolean;
             login?: boolean;
             logout?: boolean;
             checkLoginState?: boolean;
@@ -45,6 +49,9 @@ export const authSlice = createSlice({
       const newState = { ...state };
       if (action.payload.user) {
         delete newState.user;
+      }
+      if (action.payload.initializationState) {
+        newState.initializationState = initialState.initializationState;
       }
       if (action.payload.login) {
         newState.login = initialState.login;
@@ -117,6 +124,10 @@ export const authSlice = createSlice({
     checkLoginStateRequest: (state: AuthState) => {
       return {
         ...state,
+        initializationState:
+          state.initializationState === InitializationState.Uninitialized
+            ? InitializationState.Initializing
+            : state.initializationState,
         checkLoginState: {
           isTriggered: true,
           isLoading: true,
@@ -127,6 +138,7 @@ export const authSlice = createSlice({
       return {
         ...state,
         user: action.payload,
+        initializationState: InitializationState.Initialized,
         checkLoginState: {
           isTriggered: true,
           isLoading: false,
@@ -139,6 +151,7 @@ export const authSlice = createSlice({
     ) => {
       return {
         ...state,
+        initializationState: InitializationState.Initialized,
         checkLoginState: {
           isTriggered: true,
           isLoading: false,
