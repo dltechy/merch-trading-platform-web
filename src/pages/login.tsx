@@ -7,10 +7,17 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { LoginDto, loginValidator } from '@app/modules/auth/dtos/login.dto';
-import { loginRequest } from '@app/modules/auth/redux/auth.slice';
+import {
+  loginRequest,
+  resetAuthState,
+} from '@app/modules/auth/redux/auth.slice';
 import { FormCard } from '@app/modules/common/components/FormCard';
 import { LabelledTextBox } from '@app/modules/common/components/LabelledTextBox';
 import { PrimaryButton } from '@app/modules/common/components/PrimaryButton';
+import {
+  addToastMessage,
+  ToastType,
+} from '@app/modules/common/redux/toast.slice';
 import { InitializationState } from '@app/modules/common/states/initialization-state';
 import { AppState } from '@app/redux/store';
 
@@ -24,6 +31,9 @@ const Login: NextPage = () => {
   const user = useSelector((state: AppState) => state.auth.user);
   const initializationState = useSelector(
     (state: AppState) => state.auth.initializationState,
+  );
+  const isLoginTriggered = useSelector(
+    (state: AppState) => state.auth.login.isTriggered,
   );
   const isLoginLoading = useSelector(
     (state: AppState) => state.auth.login.isLoading,
@@ -40,11 +50,38 @@ const Login: NextPage = () => {
     }
 
     if (user) {
+      if (isLoginTriggered) {
+        dispatch(
+          addToastMessage({
+            type: ToastType.Info,
+            message: 'Login successful',
+          }),
+        );
+      }
+
       Router.push('/');
     } else {
       setIsRenderAllowed(true);
     }
-  }, [initializationState, user]);
+  }, [initializationState, user, isLoginTriggered, dispatch]);
+
+  useEffect(() => {
+    if (!loginError) {
+      return;
+    }
+
+    dispatch(
+      addToastMessage({
+        type: ToastType.Error,
+        message: `Login failed: ${
+          (loginError.response?.data as { message?: string })?.message ??
+          loginError.message
+        }`,
+      }),
+    );
+
+    dispatch(resetAuthState({ login: true }));
+  }, [loginError, dispatch]);
 
   // Handlers
 
@@ -69,13 +106,6 @@ const Login: NextPage = () => {
       </Head>
 
       <FormCard title="Login" className="w-1/4">
-        {loginError && (
-          <p className="mb-6 font-normal italic text-red-500">
-            {(loginError.response?.data as { message?: string })?.message ??
-              loginError.message}
-          </p>
-        )}
-
         <Formik
           initialValues={{
             email: '',

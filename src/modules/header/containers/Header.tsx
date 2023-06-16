@@ -8,6 +8,10 @@ import {
   logoutRequest,
   resetAuthState,
 } from '@app/modules/auth/redux/auth.slice';
+import {
+  addToastMessage,
+  ToastType,
+} from '@app/modules/common/redux/toast.slice';
 import { InitializationState } from '@app/modules/common/states/initialization-state';
 import { AppState } from '@app/redux/store';
 
@@ -26,6 +30,9 @@ export const Header: FC = () => {
   const [isRenderAllowed, setIsRenderAllowed] = useState(false);
 
   const user = useSelector((state: AppState) => state.auth.user);
+  const isLogoutTriggered = useSelector(
+    (state: AppState) => state.auth.logout.isTriggered,
+  );
   const isCheckLoginStateLoading = useSelector(
     (state: AppState) => state.auth.checkLoginState.isLoading,
   );
@@ -71,11 +78,20 @@ export const Header: FC = () => {
     if (user) {
       setIsRenderAllowed(true);
     } else if (pathname.search(/^\/(login|register)(\/|\?|$)/) === -1) {
+      if (isLogoutTriggered) {
+        dispatch(
+          addToastMessage({
+            type: ToastType.Info,
+            message: 'Logout successful',
+          }),
+        );
+      }
+
       setIsRenderAllowed(false);
 
       Router.push('/login');
     }
-  }, [pathname, initializationState, user, dispatch]);
+  }, [pathname, initializationState, user, isLogoutTriggered, dispatch]);
 
   // Handlers
 

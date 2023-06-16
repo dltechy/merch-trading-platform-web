@@ -9,12 +9,19 @@ import { FormCard } from '@app/modules/common/components/FormCard';
 import { LabelledTextBox } from '@app/modules/common/components/LabelledTextBox';
 import { PrimaryButton } from '@app/modules/common/components/PrimaryButton';
 import { SecondaryButton } from '@app/modules/common/components/SecondaryButton';
+import {
+  addToastMessage,
+  ToastType,
+} from '@app/modules/common/redux/toast.slice';
 import { InitializationState } from '@app/modules/common/states/initialization-state';
 import {
   RegisterDto,
   registerValidator,
 } from '@app/modules/registration/dtos/register.dto';
-import { registerRequest } from '@app/modules/registration/redux/registration.slice';
+import {
+  registerRequest,
+  resetRegistrationState,
+} from '@app/modules/registration/redux/registration.slice';
 import { AppState } from '@app/redux/store';
 
 const Register: NextPage = () => {
@@ -56,11 +63,32 @@ const Register: NextPage = () => {
   }, [initializationState, user, dispatch]);
 
   useEffect(() => {
-    if (!isRegisterTriggered || isRegisterLoading || registerError) {
+    if (!isRegisterTriggered || isRegisterLoading) {
       return;
     }
 
-    Router.push('/login');
+    if (!registerError) {
+      dispatch(
+        addToastMessage({
+          type: ToastType.Info,
+          message: 'Registration successful',
+        }),
+      );
+
+      Router.push('/login');
+    } else {
+      dispatch(
+        addToastMessage({
+          type: ToastType.Error,
+          message: `Registration failed: ${
+            (registerError.response?.data as { message?: string })?.message ??
+            registerError.message
+          }`,
+        }),
+      );
+
+      dispatch(resetRegistrationState());
+    }
   }, [isRegisterTriggered, isRegisterLoading, registerError, dispatch]);
 
   // Handlers
@@ -90,13 +118,6 @@ const Register: NextPage = () => {
       </Head>
 
       <FormCard title="Register" className="w-1/4">
-        {registerError && (
-          <p className="mb-6 font-normal italic text-red-500">
-            {(registerError.response?.data as { message?: string })?.message ??
-              registerError.message}
-          </p>
-        )}
-
         <Formik
           initialValues={{
             email: '',
