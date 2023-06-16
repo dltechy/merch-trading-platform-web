@@ -5,6 +5,10 @@ import createSagaMiddleware, { SagaMiddleware } from 'redux-saga';
 
 import { authReducer, AuthState } from '@app/modules/auth/redux/auth.slice';
 import {
+  toastReducer,
+  ToastState,
+} from '@app/modules/common/redux/toast.slice';
+import {
   registrationReducer,
   RegistrationState,
 } from '@app/modules/registration/redux/registration.slice';
@@ -15,6 +19,7 @@ const sagaMiddleware = createSagaMiddleware();
 
 const makeStore = (): ToolkitStore<
   {
+    toast: ToastState;
     auth: AuthState;
     registration: RegistrationState;
   },
@@ -23,6 +28,7 @@ const makeStore = (): ToolkitStore<
 > => {
   const store = configureStore({
     reducer: {
+      toast: toastReducer,
       auth: authReducer,
       registration: registrationReducer,
     },
