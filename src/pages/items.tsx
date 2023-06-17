@@ -24,8 +24,8 @@ const Items: NextPage = () => {
   const [itemsSearchName] = useState('');
   const [itemsPage, setItemsPage] = useState(1);
   const [itemsCount, setItemsCount] = useState(10);
-  const [itemsSortBy] = useState(GetItemsSortBy.Name);
-  const [itemsSortOrder] = useState(SortOrder.Asc);
+  const [itemsSortBy, setItemsSortBy] = useState(GetItemsSortBy.Name);
+  const [itemsSortOrder, setItemsSortOrder] = useState(SortOrder.Asc);
 
   const totalItemCount = useSelector(
     (state: AppState) => state.items.totalCount,
@@ -78,6 +78,17 @@ const Items: NextPage = () => {
 
   // Handlers
 
+  const handleSelectHeader = (headerSortBy: string): void => {
+    if (itemsSortBy === headerSortBy) {
+      setItemsSortOrder(
+        itemsSortOrder === SortOrder.Asc ? SortOrder.Desc : SortOrder.Asc,
+      );
+    } else {
+      setItemsSortOrder(SortOrder.Asc);
+    }
+    setItemsSortBy(headerSortBy as GetItemsSortBy);
+  };
+
   const handleSelectPage = (page: number): void => {
     setItemsPage(page);
   };
@@ -104,6 +115,7 @@ const Items: NextPage = () => {
             {
               value: 'Name',
               className: 'w-1/2',
+              sortBy: GetItemsSortBy.Name,
             },
             {
               value: 'Description',
@@ -116,8 +128,11 @@ const Items: NextPage = () => {
               values: [item.name, item.description],
             };
           })}
+          sortBy={itemsSortBy}
+          sortOrder={itemsSortOrder}
           page={itemsPage}
           count={itemsCount}
+          onSelectHeader={handleSelectHeader}
           onSelectPage={handleSelectPage}
           onSelectCount={handleSelectCount}
         />

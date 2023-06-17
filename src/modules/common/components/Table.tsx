@@ -1,5 +1,6 @@
-import { ChangeEvent, FC } from 'react';
+import { ChangeEvent, FC, KeyboardEvent } from 'react';
 
+import { SortOrder } from '../constants/sort-order';
 import { Dropdown } from './Dropdown';
 
 interface Props {
@@ -7,13 +8,17 @@ interface Props {
   headers: {
     value: string;
     className?: string;
+    sortBy?: string;
   }[];
   data: {
     key: string;
     values: string[];
   }[];
+  sortBy?: string;
+  sortOrder?: SortOrder;
   page?: number;
   count?: number;
+  onSelectHeader?: (headerSortBy: string) => void;
   onSelectPage?: (page: number) => void;
   onSelectCount?: (count: number) => void;
 }
@@ -47,8 +52,11 @@ export const Table: FC<Props> = ({
   totalCount,
   headers,
   data,
+  sortBy,
+  sortOrder,
   page = 1,
   count = 10,
+  onSelectHeader,
   onSelectPage,
   onSelectCount,
 }) => {
@@ -58,6 +66,21 @@ export const Table: FC<Props> = ({
   const pageNumbers: number[] = createPageNumbers(totalPageCount, page);
 
   // Handlers
+
+  const handleSelectHeader = (headerSortBy: string): void => {
+    onSelectHeader?.(headerSortBy);
+  };
+
+  const handleSelectHeaderKeyDown = (
+    e: KeyboardEvent<HTMLTableCellElement>,
+    headerSortBy: string,
+  ): void => {
+    if (e.key !== 'Enter' && e.key !== ' ') {
+      return;
+    }
+
+    handleSelectHeader(headerSortBy);
+  };
 
   const handleSelectPage = (pageNumber: number): void => {
     onSelectPage?.(pageNumber);
@@ -78,17 +101,38 @@ export const Table: FC<Props> = ({
           <table className="w-full table-fixed">
             <thead className="sticky top-0">
               <tr className="bg-blue-600 text-white [&>th+th]:border-l-2 [&>th+th]:border-cyan-400">
-                {headers.map(({ value, className = '' }, index) => {
-                  return (
-                    <th
-                      // eslint-disable-next-line react/no-array-index-key
-                      key={index}
-                      className={`truncate px-4 py-3 ${className}`}
-                    >
-                      {value}
-                    </th>
-                  );
-                })}
+                {headers.map(
+                  ({ value, className = '', sortBy: headerSortBy }, index) => {
+                    return (
+                      <th
+                        // eslint-disable-next-line react/no-array-index-key
+                        key={index}
+                        className={`truncate px-4 py-3 ${
+                          headerSortBy ? 'cursor-pointer' : ''
+                        } ${className}`}
+                        tabIndex={headerSortBy ? 0 : -1}
+                        onClick={
+                          headerSortBy
+                            ? (): void => handleSelectHeader(headerSortBy)
+                            : undefined
+                        }
+                        onKeyDown={
+                          headerSortBy
+                            ? (e): void =>
+                                handleSelectHeaderKeyDown(e, headerSortBy)
+                            : undefined
+                        }
+                      >
+                        <span>{value}</span>
+                        {headerSortBy && headerSortBy === sortBy ? (
+                          <span className="select-none pl-2">
+                            {sortOrder === SortOrder.Asc ? '▲' : '▼'}
+                          </span>
+                        ) : undefined}
+                      </th>
+                    );
+                  },
+                )}
               </tr>
             </thead>
             <tbody>
