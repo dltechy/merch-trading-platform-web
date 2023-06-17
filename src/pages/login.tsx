@@ -59,7 +59,7 @@ const Login: NextPage = () => {
         );
       }
 
-      Router.push('/');
+      Router.push('/items');
     } else {
       setIsRenderAllowed(true);
     }

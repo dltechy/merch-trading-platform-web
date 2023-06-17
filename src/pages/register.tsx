@@ -56,7 +56,7 @@ const Register: NextPage = () => {
     }
 
     if (user) {
-      Router.push('/');
+      Router.push('/items');
     } else {
       setIsRenderAllowed(true);
     }

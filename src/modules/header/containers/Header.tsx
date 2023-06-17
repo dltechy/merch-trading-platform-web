@@ -42,6 +42,12 @@ export const Header: FC = () => {
   // Effects
 
   useEffect(() => {
+    if (pathname.search(/^(\/\?|\/$|\?|$)/) !== -1) {
+      Router.replace('/items');
+    }
+  }, [pathname]);
+
+  useEffect(() => {
     dispatch(checkLoginStateRequest());
 
     return () => {
@@ -118,7 +124,11 @@ export const Header: FC = () => {
         {isRenderAllowed && (
           <>
             <div className="absolute left-1/2 flex h-16 -translate-x-1/2 space-x-[-2px]">
-              <HeaderTab href="/" text="Placeholder" />
+              <HeaderTab
+                href="/items"
+                text="Tradable Items"
+                isSelected={pathname.search(/^\/items(\/|\?|$)/) !== -1}
+              />
             </div>
 
             <div>

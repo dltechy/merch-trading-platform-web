@@ -8,6 +8,7 @@ import {
   toastReducer,
   ToastState,
 } from '@app/modules/common/redux/toast.slice';
+import { itemsReducer, ItemsState } from '@app/modules/items/redux/items.slice';
 import {
   registrationReducer,
   RegistrationState,
@@ -22,6 +23,7 @@ const makeStore = (): ToolkitStore<
     toast: ToastState;
     auth: AuthState;
     registration: RegistrationState;
+    items: ItemsState;
   },
   AnyAction,
   SagaMiddleware<object>[]
@@ -31,6 +33,7 @@ const makeStore = (): ToolkitStore<
       toast: toastReducer,
       auth: authReducer,
       registration: registrationReducer,
+      items: itemsReducer,
     },
     middleware: (getDefaultMiddleware) => [
       ...getDefaultMiddleware({ thunk: false }),
