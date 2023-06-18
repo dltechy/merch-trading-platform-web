@@ -1,8 +1,9 @@
 import { NextPage } from 'next';
 import Head from 'next/head';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
+import { PrimaryButton } from '@app/modules/common/components/PrimaryButton';
 import { Search } from '@app/modules/common/components/Search';
 import { Table } from '@app/modules/common/components/Table';
 import { SortOrder } from '@app/modules/common/constants/sort-order';
@@ -10,6 +11,7 @@ import {
   addToastMessage,
   ToastType,
 } from '@app/modules/common/redux/toast.slice';
+import { AddItemModal } from '@app/modules/items/containers/AddItemModal';
 import { GetItemsSortBy } from '@app/modules/items/dtos/get-items.dto';
 import {
   getItemsRequest,
@@ -28,6 +30,8 @@ const Items: NextPage = () => {
   const [itemsSortBy, setItemsSortBy] = useState(GetItemsSortBy.Name);
   const [itemsSortOrder, setItemsSortOrder] = useState(SortOrder.Asc);
 
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+
   const totalItemCount = useSelector(
     (state: AppState) => state.items.totalCount,
   );
@@ -38,9 +42,9 @@ const Items: NextPage = () => {
 
   const dispatch = useDispatch();
 
-  // Effects
+  // Effects & Callbacks
 
-  useEffect(() => {
+  const getItems = useCallback((): void => {
     dispatch(
       getItemsRequest({
         searchName: itemsSearchName,
@@ -58,6 +62,10 @@ const Items: NextPage = () => {
     itemsSortOrder,
     dispatch,
   ]);
+
+  useEffect(() => {
+    getItems();
+  }, [getItems]);
 
   useEffect(() => {
     if (!getItemsError) {
@@ -107,48 +115,72 @@ const Items: NextPage = () => {
     setItemsSearchName(searchString);
   };
 
+  const handleClickAdd = (): void => {
+    setIsAddModalOpen(true);
+  };
+
+  const handleAdd = (): void => {
+    getItems();
+    setIsAddModalOpen(false);
+  };
+
+  const handleCloseAddModal = (): void => {
+    setIsAddModalOpen(false);
+  };
+
   // Elements
 
   return (
-    <div className="flex h-full w-full flex-col items-start justify-center p-8">
-      <Head>
-        <title>{`${appName} - Items`}</title>
-      </Head>
+    <>
+      <div className="flex h-full w-full flex-col items-start justify-center p-8">
+        <Head>
+          <title>{`${appName} - Items`}</title>
+        </Head>
 
-      <div className="flex w-full flex-row items-center justify-between pb-6">
-        <span className="pl-4 text-4xl font-bold">Tradable Items</span>
-        <Search className="pr-2" onSearch={handleSearch} />
+        <div className="flex w-full flex-row items-center justify-between pb-6">
+          <span className="pl-4 text-4xl font-bold">Tradable Items</span>
+          <div className="flex space-x-4 pr-2">
+            <div className="w-24">
+              <PrimaryButton value="+ Add" onClick={handleClickAdd} />
+            </div>
+            <Search onSearch={handleSearch} />
+          </div>
+        </div>
+        <div className="h-0 w-full grow-[1]">
+          <Table
+            totalCount={totalItemCount}
+            headers={[
+              {
+                value: 'Name',
+                className: 'w-1/2',
+                sortBy: GetItemsSortBy.Name,
+              },
+              {
+                value: 'Description',
+                className: 'w-1/2',
+              },
+            ]}
+            data={items.map((item) => {
+              return {
+                key: item.id,
+                values: [item.name, item.description],
+              };
+            })}
+            sortBy={itemsSortBy}
+            sortOrder={itemsSortOrder}
+            page={itemsPage}
+            count={itemsCount}
+            onSelectHeader={handleSelectHeader}
+            onSelectPage={handleSelectPage}
+            onSelectCount={handleSelectCount}
+          />
+        </div>
       </div>
-      <div className="h-0 w-full grow-[1]">
-        <Table
-          totalCount={totalItemCount}
-          headers={[
-            {
-              value: 'Name',
-              className: 'w-1/2',
-              sortBy: GetItemsSortBy.Name,
-            },
-            {
-              value: 'Description',
-              className: 'w-1/2',
-            },
-          ]}
-          data={items.map((item) => {
-            return {
-              key: item.id,
-              values: [item.name, item.description],
-            };
-          })}
-          sortBy={itemsSortBy}
-          sortOrder={itemsSortOrder}
-          page={itemsPage}
-          count={itemsCount}
-          onSelectHeader={handleSelectHeader}
-          onSelectPage={handleSelectPage}
-          onSelectCount={handleSelectCount}
-        />
-      </div>
-    </div>
+
+      {isAddModalOpen && (
+        <AddItemModal onAdd={handleAdd} onClose={handleCloseAddModal} />
+      )}
+    </>
   );
 };
 
