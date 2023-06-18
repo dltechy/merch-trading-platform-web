@@ -143,7 +143,7 @@ const Items: NextPage = () => {
             <div className="w-24">
               <PrimaryButton value="+ Add" onClick={handleClickAdd} />
             </div>
-            <Search onSearch={handleSearch} />
+            <Search onSearch={handleSearch} isAutoSearchAllowed />
           </div>
         </div>
         <div className="h-0 w-full grow-[1]">
