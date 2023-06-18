@@ -3,6 +3,7 @@ import Head from 'next/head';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
+import { Search } from '@app/modules/common/components/Search';
 import { Table } from '@app/modules/common/components/Table';
 import { SortOrder } from '@app/modules/common/constants/sort-order';
 import {
@@ -21,7 +22,7 @@ const Items: NextPage = () => {
 
   const appName = process.env.NEXT_PUBLIC_APP_NAME;
 
-  const [itemsSearchName] = useState('');
+  const [itemsSearchName, setItemsSearchName] = useState('');
   const [itemsPage, setItemsPage] = useState(1);
   const [itemsCount, setItemsCount] = useState(10);
   const [itemsSortBy, setItemsSortBy] = useState(GetItemsSortBy.Name);
@@ -97,6 +98,15 @@ const Items: NextPage = () => {
     setItemsCount(count);
   };
 
+  const handleSearch = ({
+    searchString,
+  }: {
+    searchKey?: string;
+    searchString: string;
+  }): void => {
+    setItemsSearchName(searchString);
+  };
+
   // Elements
 
   return (
@@ -105,8 +115,9 @@ const Items: NextPage = () => {
         <title>{`${appName} - Items`}</title>
       </Head>
 
-      <div className="flex w-full flex-row items-center pb-6">
+      <div className="flex w-full flex-row items-center justify-between pb-6">
         <span className="pl-4 text-4xl font-bold">Tradable Items</span>
+        <Search className="pr-2" onSearch={handleSearch} />
       </div>
       <div className="h-0 w-full grow-[1]">
         <Table
