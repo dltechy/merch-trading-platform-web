@@ -13,6 +13,10 @@ import {
   registrationReducer,
   RegistrationState,
 } from '@app/modules/registration/redux/registration.slice';
+import {
+  userItemsReducer,
+  UserItemsState,
+} from '@app/modules/user-items/redux/user-items.slice';
 
 import { rootSaga } from './root.saga';
 
@@ -24,6 +28,7 @@ const makeStore = (): ToolkitStore<
     auth: AuthState;
     registration: RegistrationState;
     items: ItemsState;
+    userItems: UserItemsState;
   },
   AnyAction,
   SagaMiddleware<object>[]
@@ -34,6 +39,7 @@ const makeStore = (): ToolkitStore<
       auth: authReducer,
       registration: registrationReducer,
       items: itemsReducer,
+      userItems: userItemsReducer,
     },
     middleware: (getDefaultMiddleware) => [
       ...getDefaultMiddleware({ thunk: false }),
