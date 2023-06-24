@@ -17,6 +17,10 @@ import {
   userItemsReducer,
   UserItemsState,
 } from '@app/modules/user-items/redux/user-items.slice';
+import {
+  userWishesReducer,
+  UserWishesState,
+} from '@app/modules/user-wishes/redux/user-wishes.slice';
 
 import { rootSaga } from './root.saga';
 
@@ -29,6 +33,7 @@ const makeStore = (): ToolkitStore<
     registration: RegistrationState;
     items: ItemsState;
     userItems: UserItemsState;
+    userWishes: UserWishesState;
   },
   AnyAction,
   SagaMiddleware<object>[]
@@ -40,6 +45,7 @@ const makeStore = (): ToolkitStore<
       registration: registrationReducer,
       items: itemsReducer,
       userItems: userItemsReducer,
+      userWishes: userWishesReducer,
     },
     middleware: (getDefaultMiddleware) => [
       ...getDefaultMiddleware({ thunk: false }),
