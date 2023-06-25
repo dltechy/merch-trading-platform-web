@@ -7,7 +7,9 @@ import {
 } from '@app/modules/common/states/api-state';
 
 import { CreateItemDto } from '../dtos/create-item.dto';
+import { DeleteItemDto } from '../dtos/delete-item.dto';
 import { GetItemsDto } from '../dtos/get-items.dto';
+import { UpdateItemDto } from '../dtos/update-item.dto';
 import { Item } from '../schemas/item';
 
 export interface ItemsState {
@@ -15,6 +17,8 @@ export interface ItemsState {
   items: Item[];
   createItem: ApiState;
   getItems: ApiState;
+  updateItem: ApiState;
+  deleteItem: ApiState;
 }
 
 const initialState: ItemsState = {
@@ -22,6 +26,8 @@ const initialState: ItemsState = {
   items: [],
   createItem: { ...initialApiState },
   getItems: { ...initialApiState },
+  updateItem: { ...initialApiState },
+  deleteItem: { ...initialApiState },
 };
 
 export const itemsSlice = createSlice({
@@ -36,6 +42,8 @@ export const itemsSlice = createSlice({
             items?: boolean;
             createItem?: boolean;
             getItems?: boolean;
+            updateItem?: boolean;
+            deleteItem?: boolean;
           }
         | undefined
       >,
@@ -56,6 +64,12 @@ export const itemsSlice = createSlice({
       }
       if (action.payload.getItems) {
         newState.getItems = initialState.getItems;
+      }
+      if (action.payload.updateItem) {
+        newState.updateItem = initialState.updateItem;
+      }
+      if (action.payload.deleteItem) {
+        newState.deleteItem = initialState.deleteItem;
       }
       return newState;
     },
@@ -113,9 +127,9 @@ export const itemsSlice = createSlice({
       }>,
     ) => {
       return {
+        ...state,
         totalCount: action.payload.totalCount,
         items: action.payload.items,
-        createItem: state.createItem,
         getItems: {
           isTriggered: true,
           isLoading: false,
@@ -126,6 +140,74 @@ export const itemsSlice = createSlice({
       return {
         ...state,
         getItems: {
+          isTriggered: true,
+          isLoading: false,
+          error: action.payload,
+        },
+      };
+    },
+    updateItemRequest: (
+      state: ItemsState,
+      _action: PayloadAction<UpdateItemDto>,
+    ) => {
+      return {
+        ...state,
+        updateItem: {
+          isTriggered: true,
+          isLoading: true,
+        },
+      };
+    },
+    updateItemSuccess: (state: ItemsState) => {
+      return {
+        ...state,
+        updateItem: {
+          isTriggered: true,
+          isLoading: false,
+        },
+      };
+    },
+    updateItemFailure: (
+      state: ItemsState,
+      action: PayloadAction<AxiosError>,
+    ) => {
+      return {
+        ...state,
+        updateItem: {
+          isTriggered: true,
+          isLoading: false,
+          error: action.payload,
+        },
+      };
+    },
+    deleteItemRequest: (
+      state: ItemsState,
+      _action: PayloadAction<DeleteItemDto>,
+    ) => {
+      return {
+        ...state,
+        deleteItem: {
+          isTriggered: true,
+          isLoading: true,
+        },
+      };
+    },
+    deleteItemSuccess: (state: ItemsState) => {
+      return {
+        ...state,
+        deleteItem: {
+          isTriggered: true,
+          isLoading: false,
+        },
+      };
+    },
+    deleteItemFailure: (
+      state: ItemsState,
+      action: PayloadAction<AxiosError>,
+    ) => {
+      return {
+        ...state,
+        deleteItem: {
           isTriggered: true,
           isLoading: false,
           error: action.payload,
@@ -143,6 +225,12 @@ export const {
   getItemsRequest,
   getItemsSuccess,
   getItemsFailure,
+  updateItemRequest,
+  updateItemSuccess,
+  updateItemFailure,
+  deleteItemRequest,
+  deleteItemSuccess,
+  deleteItemFailure,
 } = itemsSlice.actions;
 
 export const itemsReducer = itemsSlice.reducer;
