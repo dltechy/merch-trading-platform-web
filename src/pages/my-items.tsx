@@ -12,8 +12,11 @@ import {
   ToastType,
 } from '@app/modules/common/redux/toast.slice';
 import { AddUserItemModal } from '@app/modules/user-items/containers/AddUserItemModal';
+import { DeleteUserItemModal } from '@app/modules/user-items/containers/DeleteUserItemModal';
+import { EditUserItemModal } from '@app/modules/user-items/containers/EditUserItemModal';
 import { GetUserItemsSortBy } from '@app/modules/user-items/dtos/get-user-items.dto';
 import { getUserItemsRequest } from '@app/modules/user-items/redux/user-items.slice';
+import { UserItem } from '@app/modules/user-items/schemas/user-item';
 import { AppState } from '@app/redux/store';
 
 const MyItems: NextPage = () => {
@@ -29,7 +32,14 @@ const MyItems: NextPage = () => {
   );
   const [userItemsSortOrder, setUserItemsSortOrder] = useState(SortOrder.Asc);
 
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  enum OpenModal {
+    None,
+    Add,
+    Edit,
+    Delete,
+  }
+  const [openModal, setOpenModal] = useState(OpenModal.None);
+  const [selectedItem, setSelectedItem] = useState<UserItem | undefined>();
 
   const user = useSelector((state: AppState) => state.auth.user);
 
@@ -117,16 +127,43 @@ const MyItems: NextPage = () => {
   };
 
   const handleClickAdd = (): void => {
-    setIsAddModalOpen(true);
+    setOpenModal(OpenModal.Add);
   };
 
   const handleAdd = (): void => {
     getUserItems();
-    setIsAddModalOpen(false);
+    setOpenModal(OpenModal.None);
   };
 
-  const handleCloseAddModal = (): void => {
-    setIsAddModalOpen(false);
+  const handleClickEdit = (id: string): void => {
+    setOpenModal(OpenModal.Edit);
+    setSelectedItem(userItems.find((userItem) => userItem.id === id));
+  };
+
+  const handleEdit = (): void => {
+    getUserItems();
+    setOpenModal(OpenModal.None);
+    setSelectedItem(undefined);
+  };
+
+  const handleClickDelete = (id: string): void => {
+    setOpenModal(OpenModal.Delete);
+    setSelectedItem(userItems.find((userItem) => userItem.id === id));
+  };
+
+  const handleDelete = (): void => {
+    if (userItemsPage > 1 && userItems.length === 1) {
+      setUserItemsPage(userItemsPage - 1);
+    } else {
+      getUserItems();
+    }
+    setOpenModal(OpenModal.None);
+    setSelectedItem(undefined);
+  };
+
+  const handleCloseModal = (): void => {
+    setOpenModal(OpenModal.None);
+    setSelectedItem(undefined);
   };
 
   // Elements
@@ -182,13 +219,45 @@ const MyItems: NextPage = () => {
             onSelectHeader={handleSelectHeader}
             onSelectPage={handleSelectPage}
             onSelectCount={handleSelectCount}
+            onEdit={handleClickEdit}
+            onDelete={handleClickDelete}
           />
         </div>
       </div>
 
-      {isAddModalOpen && (
-        <AddUserItemModal onAdd={handleAdd} onClose={handleCloseAddModal} />
-      )}
+      {((): JSX.Element | undefined => {
+        switch (openModal) {
+          case OpenModal.Add:
+            return (
+              <AddUserItemModal onAdd={handleAdd} onClose={handleCloseModal} />
+            );
+          case OpenModal.Edit:
+            if (selectedItem) {
+              return (
+                <EditUserItemModal
+                  userItem={selectedItem}
+                  onEdit={handleEdit}
+                  onClose={handleCloseModal}
+                />
+              );
+            }
+            break;
+          case OpenModal.Delete:
+            if (selectedItem) {
+              return (
+                <DeleteUserItemModal
+                  userItem={selectedItem}
+                  onDelete={handleDelete}
+                  onClose={handleCloseModal}
+                />
+              );
+            }
+            break;
+          default:
+            break;
+        }
+        return undefined;
+      })()}
     </>
   );
 };

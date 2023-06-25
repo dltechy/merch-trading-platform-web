@@ -12,8 +12,11 @@ import {
   ToastType,
 } from '@app/modules/common/redux/toast.slice';
 import { AddUserWishModal } from '@app/modules/user-wishes/containers/AddUserWishModal';
+import { DeleteUserWishModal } from '@app/modules/user-wishes/containers/DeleteUserWishModal';
+import { EditUserWishModal } from '@app/modules/user-wishes/containers/EditUserWishModal';
 import { GetUserWishesSortBy } from '@app/modules/user-wishes/dtos/get-user-wishes.dto';
 import { getUserWishesRequest } from '@app/modules/user-wishes/redux/user-wishes.slice';
+import { UserWish } from '@app/modules/user-wishes/schemas/user-wish';
 import { AppState } from '@app/redux/store';
 
 const MyWishes: NextPage = () => {
@@ -29,7 +32,14 @@ const MyWishes: NextPage = () => {
   );
   const [userWishesSortOrder, setUserWishesSortOrder] = useState(SortOrder.Asc);
 
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  enum OpenModal {
+    None,
+    Add,
+    Edit,
+    Delete,
+  }
+  const [openModal, setOpenModal] = useState(OpenModal.None);
+  const [selectedWish, setSelectedWish] = useState<UserWish | undefined>();
 
   const user = useSelector((state: AppState) => state.auth.user);
 
@@ -119,16 +129,44 @@ const MyWishes: NextPage = () => {
   };
 
   const handleClickAdd = (): void => {
-    setIsAddModalOpen(true);
+    setOpenModal(OpenModal.Add);
   };
 
   const handleAdd = (): void => {
     getUserWishes();
-    setIsAddModalOpen(false);
+    setOpenModal(OpenModal.None);
   };
 
-  const handleCloseAddModal = (): void => {
-    setIsAddModalOpen(false);
+  const handleClickEdit = (id: string): void => {
+    setOpenModal(OpenModal.Edit);
+    setSelectedWish(userWishes.find((userWish) => userWish.id === id));
+  };
+
+  const handleEdit = (): void => {
+    getUserWishes();
+    setOpenModal(OpenModal.None);
+    setSelectedWish(undefined);
+  };
+
+  const handleClickDelete = (id: string): void => {
+    setOpenModal(OpenModal.Delete);
+    setSelectedWish(userWishes.find((userWish) => userWish.id === id));
+  };
+
+  const handleDelete = (): void => {
+    if (userWishesPage > 1 && userWishes.length === 1) {
+      setUserWishesPage(userWishesPage - 1);
+    } else {
+      getUserWishes();
+    }
+    getUserWishes();
+    setOpenModal(OpenModal.None);
+    setSelectedWish(undefined);
+  };
+
+  const handleCloseModal = (): void => {
+    setOpenModal(OpenModal.None);
+    setSelectedWish(undefined);
   };
 
   // Elements
@@ -184,13 +222,45 @@ const MyWishes: NextPage = () => {
             onSelectHeader={handleSelectHeader}
             onSelectPage={handleSelectPage}
             onSelectCount={handleSelectCount}
+            onEdit={handleClickEdit}
+            onDelete={handleClickDelete}
           />
         </div>
       </div>
 
-      {isAddModalOpen && (
-        <AddUserWishModal onAdd={handleAdd} onClose={handleCloseAddModal} />
-      )}
+      {((): JSX.Element | undefined => {
+        switch (openModal) {
+          case OpenModal.Add:
+            return (
+              <AddUserWishModal onAdd={handleAdd} onClose={handleCloseModal} />
+            );
+          case OpenModal.Edit:
+            if (selectedWish) {
+              return (
+                <EditUserWishModal
+                  userWish={selectedWish}
+                  onEdit={handleEdit}
+                  onClose={handleCloseModal}
+                />
+              );
+            }
+            break;
+          case OpenModal.Delete:
+            if (selectedWish) {
+              return (
+                <DeleteUserWishModal
+                  userWish={selectedWish}
+                  onDelete={handleDelete}
+                  onClose={handleCloseModal}
+                />
+              );
+            }
+            break;
+          default:
+            break;
+        }
+        return undefined;
+      })()}
     </>
   );
 };

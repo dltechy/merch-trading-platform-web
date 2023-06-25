@@ -6,15 +6,23 @@ import { CreateItemDto } from '@app/modules/items/dtos/create-item.dto';
 import { Item } from '@app/modules/items/schemas/item';
 
 import { CreateUserItemDto } from '../dtos/create-user-item.dto';
+import { DeleteUserItemDto } from '../dtos/delete-user-item.dto';
 import { GetUserItemsDto } from '../dtos/get-user-items.dto';
+import { UpdateUserItemDto } from '../dtos/update-user-item.dto';
 import { UserItem } from '../schemas/user-item';
 import {
   createUserItemFailure,
   createUserItemRequest,
   createUserItemSuccess,
+  deleteUserItemFailure,
+  deleteUserItemRequest,
+  deleteUserItemSuccess,
   getUserItemsFailure,
   getUserItemsRequest,
   getUserItemsSuccess,
+  updateUserItemFailure,
+  updateUserItemRequest,
+  updateUserItemSuccess,
 } from './user-items.slice';
 
 const appHost = process.env.NEXT_PUBLIC_APP_HOST;
@@ -107,9 +115,56 @@ function* getUserItemsSaga(
   }
 }
 
+const updateUserItem = async ({
+  id,
+  remarks,
+  ...dto
+}: UpdateUserItemDto): Promise<void> => {
+  const payload: Omit<UpdateUserItemDto, 'id'> = dto;
+  if (remarks != null) {
+    payload.remarks = remarks;
+  }
+
+  await axios.patch<void>(`${appHost}/user-items/${id}`, payload, {
+    withCredentials: true,
+  });
+};
+
+function* updateUserItemSaga(
+  action: PayloadAction<UpdateUserItemDto>,
+): Generator | PutEffect {
+  try {
+    yield call(updateUserItem, action.payload);
+
+    yield put(updateUserItemSuccess());
+  } catch (e) {
+    yield put(updateUserItemFailure(e as AxiosError));
+  }
+}
+
+const deleteUserItem = async ({ id }: DeleteUserItemDto): Promise<void> => {
+  await axios.delete<void>(`${appHost}/user-items/${id}`, {
+    withCredentials: true,
+  });
+};
+
+function* deleteUserItemSaga(
+  action: PayloadAction<DeleteUserItemDto>,
+): Generator | PutEffect {
+  try {
+    yield call(deleteUserItem, action.payload);
+
+    yield put(deleteUserItemSuccess());
+  } catch (e) {
+    yield put(deleteUserItemFailure(e as AxiosError));
+  }
+}
+
 export function* userItemsSaga(): Generator {
   yield all([
     takeLatest(createUserItemRequest.type, createUserItemSaga),
     takeLatest(getUserItemsRequest.type, getUserItemsSaga),
+    takeLatest(updateUserItemRequest.type, updateUserItemSaga),
+    takeLatest(deleteUserItemRequest.type, deleteUserItemSaga),
   ]);
 }

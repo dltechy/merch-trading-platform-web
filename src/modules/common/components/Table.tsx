@@ -1,7 +1,11 @@
 import { ChangeEvent, FC, KeyboardEvent } from 'react';
 
+import DeleteSvg from '@public/images/delete.svg';
+import EditSvg from '@public/images/edit.svg';
+
 import { SortOrder } from '../constants/sort-order';
 import { Dropdown } from './Dropdown';
+import { ImageButton } from './ImageButton';
 
 interface Props {
   totalCount: number;
@@ -21,6 +25,8 @@ interface Props {
   onSelectHeader?: (headerSortBy: string) => void;
   onSelectPage?: (page: number) => void;
   onSelectCount?: (count: number) => void;
+  onEdit?: (key: string) => void;
+  onDelete?: (key: string) => void;
 }
 
 function createPageNumbers(totalPageCount: number, page: number): number[] {
@@ -59,6 +65,8 @@ export const Table: FC<Props> = ({
   onSelectHeader,
   onSelectPage,
   onSelectCount,
+  onEdit,
+  onDelete,
 }) => {
   // Properties
 
@@ -90,6 +98,14 @@ export const Table: FC<Props> = ({
     onSelectCount?.(parseInt(e.target.value, 10));
 
     handleSelectPage(1);
+  };
+
+  const handleEdit = (key: string): void => {
+    onEdit?.(key);
+  };
+
+  const handleDelete = (key: string): void => {
+    onDelete?.(key);
   };
 
   // Elements
@@ -133,6 +149,11 @@ export const Table: FC<Props> = ({
                     );
                   },
                 )}
+                {(onEdit || onDelete) && (
+                  <th key={headers.length} className="w-24 select-none py-3">
+                    &nbsp;
+                  </th>
+                )}
               </tr>
             </thead>
             <tbody>
@@ -156,6 +177,26 @@ export const Table: FC<Props> = ({
                         </td>
                       );
                     })}
+                    {(onEdit || onDelete) && (
+                      <td
+                        // eslint-disable-next-line react/no-array-index-key
+                        key={values.length}
+                        className="px-2 py-1"
+                      >
+                        <div className="flex items-center justify-center space-x-1">
+                          <ImageButton
+                            SvgImage={EditSvg}
+                            title="Edit"
+                            onClick={(): void => handleEdit(key)}
+                          />
+                          <ImageButton
+                            SvgImage={DeleteSvg}
+                            title="Delete"
+                            onClick={(): void => handleDelete(key)}
+                          />
+                        </div>
+                      </td>
+                    )}
                   </tr>
                 );
               })}
@@ -179,6 +220,21 @@ export const Table: FC<Props> = ({
                             </td>
                           );
                         })}
+                        {(onEdit || onDelete) && (
+                          <td
+                            // eslint-disable-next-line react/no-array-index-key
+                            key={`placeholder-${indexRow}-${headers.length}`}
+                            className="select-none px-2 py-1"
+                          >
+                            <div className="invisible flex items-center space-x-1">
+                              <ImageButton SvgImage={EditSvg} title="Edit" />
+                              <ImageButton
+                                SvgImage={DeleteSvg}
+                                title="Delete"
+                              />
+                            </div>
+                          </td>
+                        )}
                       </tr>
                     );
                   },

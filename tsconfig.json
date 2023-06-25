@@ -12,7 +12,8 @@
     "moduleResolution": "node",
     "noEmit": true,
     "paths": {
-      "@app/*": ["./*"]
+      "@app/*": ["./*"],
+      "@public/*": ["../public/*"]
     },
     "plugins": [
       {

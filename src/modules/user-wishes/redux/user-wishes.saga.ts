@@ -6,15 +6,23 @@ import { CreateItemDto } from '@app/modules/items/dtos/create-item.dto';
 import { Item } from '@app/modules/items/schemas/item';
 
 import { CreateUserWishDto } from '../dtos/create-user-wish.dto';
+import { DeleteUserWishDto } from '../dtos/delete-user-wish.dto';
 import { GetUserWishesDto } from '../dtos/get-user-wishes.dto';
+import { UpdateUserWishDto } from '../dtos/update-user-wish.dto';
 import { UserWish } from '../schemas/user-wish';
 import {
   createUserWishFailure,
   createUserWishRequest,
   createUserWishSuccess,
+  deleteUserWishFailure,
+  deleteUserWishRequest,
+  deleteUserWishSuccess,
   getUserWishesFailure,
   getUserWishesRequest,
   getUserWishesSuccess,
+  updateUserWishFailure,
+  updateUserWishRequest,
+  updateUserWishSuccess,
 } from './user-wishes.slice';
 
 const appHost = process.env.NEXT_PUBLIC_APP_HOST;
@@ -107,9 +115,56 @@ function* getUserWishesSaga(
   }
 }
 
+const updateUserWish = async ({
+  id,
+  remarks,
+  ...dto
+}: UpdateUserWishDto): Promise<void> => {
+  const payload: Omit<UpdateUserWishDto, 'id'> = dto;
+  if (remarks != null) {
+    payload.remarks = remarks;
+  }
+
+  await axios.patch<void>(`${appHost}/user-wishes/${id}`, payload, {
+    withCredentials: true,
+  });
+};
+
+function* updateUserWishSaga(
+  action: PayloadAction<UpdateUserWishDto>,
+): Generator | PutEffect {
+  try {
+    yield call(updateUserWish, action.payload);
+
+    yield put(updateUserWishSuccess());
+  } catch (e) {
+    yield put(updateUserWishFailure(e as AxiosError));
+  }
+}
+
+const deleteUserWish = async ({ id }: DeleteUserWishDto): Promise<void> => {
+  await axios.delete<void>(`${appHost}/user-wishes/${id}`, {
+    withCredentials: true,
+  });
+};
+
+function* deleteUserWishSaga(
+  action: PayloadAction<DeleteUserWishDto>,
+): Generator | PutEffect {
+  try {
+    yield call(deleteUserWish, action.payload);
+
+    yield put(deleteUserWishSuccess());
+  } catch (e) {
+    yield put(deleteUserWishFailure(e as AxiosError));
+  }
+}
+
 export function* userWishesSaga(): Generator {
   yield all([
     takeLatest(createUserWishRequest.type, createUserWishSaga),
     takeLatest(getUserWishesRequest.type, getUserWishesSaga),
+    takeLatest(updateUserWishRequest.type, updateUserWishSaga),
+    takeLatest(deleteUserWishRequest.type, deleteUserWishSaga),
   ]);
 }

@@ -8,7 +8,9 @@ import {
 import { CreateItemDto } from '@app/modules/items/dtos/create-item.dto';
 
 import { CreateUserWishDto } from '../dtos/create-user-wish.dto';
+import { DeleteUserWishDto } from '../dtos/delete-user-wish.dto';
 import { GetUserWishesDto } from '../dtos/get-user-wishes.dto';
+import { UpdateUserWishDto } from '../dtos/update-user-wish.dto';
 import { UserWish } from '../schemas/user-wish';
 
 export interface UserWishesState {
@@ -16,6 +18,8 @@ export interface UserWishesState {
   userWishes: UserWish[];
   createUserWish: ApiState;
   getUserWishes: ApiState;
+  updateUserWish: ApiState;
+  deleteUserWish: ApiState;
 }
 
 const initialState: UserWishesState = {
@@ -23,6 +27,8 @@ const initialState: UserWishesState = {
   userWishes: [],
   createUserWish: { ...initialApiState },
   getUserWishes: { ...initialApiState },
+  updateUserWish: { ...initialApiState },
+  deleteUserWish: { ...initialApiState },
 };
 
 export const userWishesSlice = createSlice({
@@ -37,6 +43,8 @@ export const userWishesSlice = createSlice({
             userWishes?: boolean;
             createUserWish?: boolean;
             getUserWishes?: boolean;
+            updateUserWish?: boolean;
+            deleteUserWish?: boolean;
           }
         | undefined
       >,
@@ -57,6 +65,12 @@ export const userWishesSlice = createSlice({
       }
       if (action.payload.getUserWishes) {
         newState.getUserWishes = initialState.getUserWishes;
+      }
+      if (action.payload.updateUserWish) {
+        newState.updateUserWish = initialState.updateUserWish;
+      }
+      if (action.payload.deleteUserWish) {
+        newState.deleteUserWish = initialState.deleteUserWish;
       }
       return newState;
     },
@@ -117,9 +131,9 @@ export const userWishesSlice = createSlice({
       }>,
     ) => {
       return {
+        ...state,
         totalCount: action.payload.totalCount,
         userWishes: action.payload.userWishes,
-        createUserWish: state.createUserWish,
         getUserWishes: {
           isTriggered: true,
           isLoading: false,
@@ -139,6 +153,74 @@ export const userWishesSlice = createSlice({
         },
       };
     },
+    updateUserWishRequest: (
+      state: UserWishesState,
+      _action: PayloadAction<UpdateUserWishDto>,
+    ) => {
+      return {
+        ...state,
+        updateUserWish: {
+          isTriggered: true,
+          isLoading: true,
+        },
+      };
+    },
+    updateUserWishSuccess: (state: UserWishesState) => {
+      return {
+        ...state,
+        updateUserWish: {
+          isTriggered: true,
+          isLoading: false,
+        },
+      };
+    },
+    updateUserWishFailure: (
+      state: UserWishesState,
+      action: PayloadAction<AxiosError>,
+    ) => {
+      return {
+        ...state,
+        updateUserWish: {
+          isTriggered: true,
+          isLoading: false,
+          error: action.payload,
+        },
+      };
+    },
+    deleteUserWishRequest: (
+      state: UserWishesState,
+      _action: PayloadAction<DeleteUserWishDto>,
+    ) => {
+      return {
+        ...state,
+        deleteUserWish: {
+          isTriggered: true,
+          isLoading: true,
+        },
+      };
+    },
+    deleteUserWishSuccess: (state: UserWishesState) => {
+      return {
+        ...state,
+        deleteUserWish: {
+          isTriggered: true,
+          isLoading: false,
+        },
+      };
+    },
+    deleteUserWishFailure: (
+      state: UserWishesState,
+      action: PayloadAction<AxiosError>,
+    ) => {
+      return {
+        ...state,
+        deleteUserWish: {
+          isTriggered: true,
+          isLoading: false,
+          error: action.payload,
+        },
+      };
+    },
   },
 });
 
@@ -150,6 +232,12 @@ export const {
   getUserWishesRequest,
   getUserWishesSuccess,
   getUserWishesFailure,
+  updateUserWishRequest,
+  updateUserWishSuccess,
+  updateUserWishFailure,
+  deleteUserWishRequest,
+  deleteUserWishSuccess,
+  deleteUserWishFailure,
 } = userWishesSlice.actions;
 
 export const userWishesReducer = userWishesSlice.reducer;
