@@ -14,6 +14,10 @@ import {
   RegistrationState,
 } from '@app/modules/registration/redux/registration.slice';
 import {
+  tradePathsReducer,
+  TradePathsState,
+} from '@app/modules/trade-paths/redux/trade-paths.slice';
+import {
   userItemsReducer,
   UserItemsState,
 } from '@app/modules/user-items/redux/user-items.slice';
@@ -34,6 +38,7 @@ const makeStore = (): ToolkitStore<
     items: ItemsState;
     userItems: UserItemsState;
     userWishes: UserWishesState;
+    tradePaths: TradePathsState;
   },
   AnyAction,
   SagaMiddleware<object>[]
@@ -46,6 +51,7 @@ const makeStore = (): ToolkitStore<
       items: itemsReducer,
       userItems: userItemsReducer,
       userWishes: userWishesReducer,
+      tradePaths: tradePathsReducer,
     },
     middleware: (getDefaultMiddleware) => [
       ...getDefaultMiddleware({ thunk: false }),

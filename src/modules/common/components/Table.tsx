@@ -1,4 +1,4 @@
-import { ChangeEvent, FC, KeyboardEvent } from 'react';
+import { ChangeEvent, FC, KeyboardEvent, ReactNode } from 'react';
 
 import DeleteSvg from '@public/images/delete.svg';
 import EditSvg from '@public/images/edit.svg';
@@ -16,12 +16,19 @@ interface Props {
   }[];
   data: {
     key: string;
-    values: string[];
+    values: (
+      | {
+          title?: string;
+          node: ReactNode;
+        }
+      | string
+    )[];
   }[];
   sortBy?: string;
   sortOrder?: SortOrder;
   page?: number;
   count?: number;
+  rowLineCount?: number;
   onSelectHeader?: (headerSortBy: string) => void;
   onSelectPage?: (page: number) => void;
   onSelectCount?: (count: number) => void;
@@ -60,8 +67,9 @@ export const Table: FC<Props> = ({
   data,
   sortBy,
   sortOrder,
-  page = 1,
-  count = 10,
+  page,
+  count,
+  rowLineCount = 1,
   onSelectHeader,
   onSelectPage,
   onSelectCount,
@@ -70,8 +78,12 @@ export const Table: FC<Props> = ({
 }) => {
   // Properties
 
-  const totalPageCount = Math.ceil(totalCount / count);
-  const pageNumbers: number[] = createPageNumbers(totalPageCount, page);
+  const minRowCount = rowLineCount === 1 ? 10 : 8;
+
+  const totalPageCount = count ? Math.ceil(totalCount / count) : 0;
+  const pageNumbers: number[] = page
+    ? createPageNumbers(totalPageCount, page)
+    : [];
 
   // Handlers
 
@@ -164,15 +176,31 @@ export const Table: FC<Props> = ({
                     className="font-semibold odd:bg-blue-200 even:bg-blue-100 [&>td+td]:border-l-2 [&>td+td]:border-cyan-400"
                   >
                     {values.map((value, index) => {
+                      let title: string | undefined;
+                      let node: ReactNode;
+                      if (typeof value === 'string') {
+                        title = value;
+                        node = value;
+                      } else {
+                        title = value.title;
+                        node = value.node;
+                      }
+
                       return (
                         <td
                           // eslint-disable-next-line react/no-array-index-key
                           key={index}
                           className="truncate px-4 py-3"
-                          title={value}
+                          title={title}
                         >
-                          <span className="line-clamp-1 whitespace-pre-wrap">
-                            {value}
+                          <span
+                            className={`h-fit whitespace-pre-wrap ${
+                              rowLineCount === 1
+                                ? 'line-clamp-1 h-6'
+                                : 'line-clamp-2 h-12'
+                            }`}
+                          >
+                            {node}
                           </span>
                         </td>
                       );
@@ -200,8 +228,8 @@ export const Table: FC<Props> = ({
                   </tr>
                 );
               })}
-              {data.length < 10 &&
-                Array.from(Array(10 - data.length)).map(
+              {data.length < minRowCount &&
+                Array.from(Array(minRowCount - data.length)).map(
                   (_placeholderRow, indexRow) => {
                     return (
                       <tr
@@ -216,7 +244,15 @@ export const Table: FC<Props> = ({
                               key={`placeholder-${indexRow}-${indexCol}`}
                               className="px-4 py-3"
                             >
-                              <div className="select-none">&nbsp;</div>
+                              <div
+                                className={`select-none whitespace-pre-wrap ${
+                                  rowLineCount === 1
+                                    ? 'line-clamp-1 h-6'
+                                    : 'line-clamp-2 h-12'
+                                }`}
+                              >
+                                &nbsp;
+                              </div>
                             </td>
                           );
                         })}
@@ -250,57 +286,60 @@ export const Table: FC<Props> = ({
           <span>{totalCount}</span>
         </div>
 
-        <div className="absolute left-1/2 flex -translate-x-1/2 items-center text-xl font-semibold">
-          <input
-            className={`p-2 underline-offset-4 ${
-              page > 1
-                ? 'cursor-pointer hover:text-blue-800 hover:underline'
-                : 'text-gray-500'
-            }`}
-            type="button"
-            value="<"
-            disabled={page === 1}
-            onClick={(): void => handleSelectPage(page - 1)}
-          />
-          {pageNumbers.map((pageNumber) => {
-            return (
+        {page != null && count != null && (
+          <>
+            <div className="absolute left-1/2 flex -translate-x-1/2 items-center text-xl font-semibold">
               <input
-                key={pageNumber}
-                className={`cursor-pointer p-2 underline-offset-4 hover:text-blue-800 ${
-                  pageNumber === page ? 'underline' : 'hover:underline'
+                className={`p-2 underline-offset-4 ${
+                  page > 1
+                    ? 'cursor-pointer hover:text-blue-800 hover:underline'
+                    : 'text-gray-500'
                 }`}
                 type="button"
-                value={` ${pageNumber} `}
-                onClick={(): void => handleSelectPage(pageNumber)}
+                value="<"
+                disabled={page === 1}
+                onClick={(): void => handleSelectPage(page - 1)}
               />
-            );
-          })}
-          <input
-            className={`p-2 underline-offset-4 ${
-              page < totalPageCount
-                ? 'cursor-pointer hover:text-blue-800 hover:underline'
-                : 'text-gray-500'
-            }`}
-            type="button"
-            value=">"
-            disabled={page === totalPageCount}
-            onClick={(): void => handleSelectPage(page + 1)}
-          />
-        </div>
-
-        <label htmlFor="rowCount" className="flex flex-row items-center">
-          <span className="pr-2 font-bold hover:cursor-text">
-            Items per page:{' '}
-          </span>
-          <div className="w-24">
-            <Dropdown
-              id="rowCount"
-              values={[10, 20, 50, 100]}
-              selectedValue={count}
-              onChange={handleSelectCount}
-            />
-          </div>
-        </label>
+              {pageNumbers.map((pageNumber) => {
+                return (
+                  <input
+                    key={pageNumber}
+                    className={`cursor-pointer p-2 underline-offset-4 hover:text-blue-800 ${
+                      pageNumber === page ? 'underline' : 'hover:underline'
+                    }`}
+                    type="button"
+                    value={` ${pageNumber} `}
+                    onClick={(): void => handleSelectPage(pageNumber)}
+                  />
+                );
+              })}
+              <input
+                className={`p-2 underline-offset-4 ${
+                  page < totalPageCount
+                    ? 'cursor-pointer hover:text-blue-800 hover:underline'
+                    : 'text-gray-500'
+                }`}
+                type="button"
+                value=">"
+                disabled={page === totalPageCount}
+                onClick={(): void => handleSelectPage(page + 1)}
+              />
+            </div>
+            <label htmlFor="rowCount" className="flex flex-row items-center">
+              <span className="pr-2 font-bold hover:cursor-text">
+                Items per page:{' '}
+              </span>
+              <div className="w-24">
+                <Dropdown
+                  id="rowCount"
+                  values={[10, 20, 50, 100]}
+                  selectedValue={count}
+                  onChange={handleSelectCount}
+                />
+              </div>
+            </label>
+          </>
+        )}
       </div>
     </div>
   );

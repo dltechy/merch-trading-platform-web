@@ -139,6 +139,11 @@ export const Header: FC = () => {
                 text="My Wishes"
                 isSelected={pathname.search(/^\/my-wishes(\/|\?|$)/) !== -1}
               />
+              <HeaderTab
+                href="/trades"
+                text="Find Trades"
+                isSelected={pathname.search(/^\/trades(\/|\?|$)/) !== -1}
+              />
             </div>
 
             <div>
