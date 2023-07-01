@@ -59,7 +59,7 @@ export const Modal: FC<Props> = ({
           role="presentation"
           onClick={handleClickOutside}
         />
-        <FormCard title={title} className="w-1/2">
+        <FormCard title={title} className="flex max-h-full w-1/2 flex-col">
           {children}
         </FormCard>
       </div>

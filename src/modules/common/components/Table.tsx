@@ -1,4 +1,4 @@
-import { ChangeEvent, FC, KeyboardEvent, ReactNode } from 'react';
+import { ChangeEvent, FC, KeyboardEvent, ReactNode, useState } from 'react';
 
 import DeleteSvg from '@public/images/delete.svg';
 import EditSvg from '@public/images/edit.svg';
@@ -30,6 +30,7 @@ interface Props {
   count?: number;
   rowLineCount?: number;
   onSelectHeader?: (headerSortBy: string) => void;
+  onSelectRow?: (key: string) => void;
   onSelectPage?: (page: number) => void;
   onSelectCount?: (count: number) => void;
   onEdit?: (key: string) => void;
@@ -71,6 +72,7 @@ export const Table: FC<Props> = ({
   count,
   rowLineCount = 1,
   onSelectHeader,
+  onSelectRow,
   onSelectPage,
   onSelectCount,
   onEdit,
@@ -84,6 +86,8 @@ export const Table: FC<Props> = ({
   const pageNumbers: number[] = page
     ? createPageNumbers(totalPageCount, page)
     : [];
+
+  const [hoveredRowKey, setHoveredRowKey] = useState('');
 
   // Handlers
 
@@ -100,6 +104,37 @@ export const Table: FC<Props> = ({
     }
 
     handleSelectHeader(headerSortBy);
+  };
+
+  const handleRowFocus = (key: string): void => {
+    if (!onSelectRow) {
+      return;
+    }
+
+    setHoveredRowKey(key);
+  };
+
+  const handleRowBlur = (): void => {
+    if (!onSelectRow) {
+      return;
+    }
+
+    setHoveredRowKey('');
+  };
+
+  const handleSelectRow = (key: string): void => {
+    onSelectRow?.(key);
+  };
+
+  const handleSelectRowKeyDown = (
+    e: KeyboardEvent<HTMLTableRowElement>,
+    key: string,
+  ): void => {
+    if (e.key !== 'Enter' && e.key !== ' ') {
+      return;
+    }
+
+    handleSelectRow(key);
   };
 
   const handleSelectPage = (pageNumber: number): void => {
@@ -173,7 +208,22 @@ export const Table: FC<Props> = ({
                 return (
                   <tr
                     key={key}
-                    className="font-semibold odd:bg-blue-200 even:bg-blue-100 [&>td+td]:border-l-2 [&>td+td]:border-cyan-400"
+                    className={`font-semibold [&>td+td]:border-l-2 [&>td+td]:border-cyan-400 ${
+                      hoveredRowKey === key
+                        ? `cursor-pointer bg-blue-400`
+                        : 'odd:bg-blue-200 even:bg-blue-100'
+                    } ${
+                      onEdit || onDelete
+                        ? '[&>:last-child]:odd:bg-blue-200 [&>:last-child]:even:bg-blue-100'
+                        : ''
+                    }`}
+                    tabIndex={onSelectRow ? 0 : -1}
+                    onMouseOver={(): void => handleRowFocus(key)}
+                    onFocus={(): void => handleRowFocus(key)}
+                    onMouseOut={(): void => handleRowBlur()}
+                    onBlur={(): void => handleRowBlur()}
+                    onClick={(): void => handleSelectRow(key)}
+                    onKeyDown={(e): void => handleSelectRowKeyDown(e, key)}
                   >
                     {values.map((value, index) => {
                       let title: string | undefined;
@@ -209,20 +259,36 @@ export const Table: FC<Props> = ({
                       <td
                         // eslint-disable-next-line react/no-array-index-key
                         key={values.length}
-                        className="px-2 py-1"
+                        className="h-[1px] p-0"
                       >
-                        <div className="flex items-center justify-center space-x-1">
-                          <ImageButton
-                            SvgImage={EditSvg}
-                            title="Edit"
-                            onClick={(): void => handleEdit(key)}
-                          />
-                          <ImageButton
-                            SvgImage={DeleteSvg}
-                            title="Delete"
-                            onClick={(): void => handleDelete(key)}
-                          />
-                        </div>
+                        <button
+                          className="h-full w-full cursor-default px-2 py-1"
+                          type="button"
+                          tabIndex={-1}
+                          onMouseOver={(e): void => {
+                            e.stopPropagation();
+                            handleRowBlur();
+                          }}
+                          onFocus={(e): void => {
+                            e.stopPropagation();
+                            handleRowBlur();
+                          }}
+                          onClick={(e): void => e.stopPropagation()}
+                          onKeyDown={(e): void => e.stopPropagation()}
+                        >
+                          <div className="flex items-center justify-center space-x-1">
+                            <ImageButton
+                              SvgImage={EditSvg}
+                              title="Edit"
+                              onClick={(): void => handleEdit(key)}
+                            />
+                            <ImageButton
+                              SvgImage={DeleteSvg}
+                              title="Delete"
+                              onClick={(): void => handleDelete(key)}
+                            />
+                          </div>
+                        </button>
                       </td>
                     )}
                   </tr>

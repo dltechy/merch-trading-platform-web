@@ -9,6 +9,7 @@ import {
   addToastMessage,
   ToastType,
 } from '@app/modules/common/redux/toast.slice';
+import { TradePathModal } from '@app/modules/trade-paths/containers/TradePathModal';
 import { TradePathsSortBy } from '@app/modules/trade-paths/dtos/find-trade-paths.dto';
 import { findTradePathsRequest } from '@app/modules/trade-paths/redux/trade-paths.slice';
 import { UserItem } from '@app/modules/user-items/schemas/user-item';
@@ -24,6 +25,13 @@ const FindTrades: NextPage = () => {
     TradePathsSortBy.TradeCount,
   );
   const [tradePathsSortOrder, setTradePathsSortOrder] = useState(SortOrder.Asc);
+
+  enum OpenModal {
+    None,
+    TradePath,
+  }
+  const [openModal, setOpenModal] = useState(OpenModal.None);
+  const [selectedPathIndex, setSelectedPathIndex] = useState(-1);
 
   const tradePaths = useSelector((state: AppState) => state.tradePaths.paths);
   const isFindTradePathsLoading = useSelector(
@@ -172,73 +180,103 @@ const FindTrades: NextPage = () => {
     setTradePathsSortBy(headerSortBy as TradePathsSortBy);
   };
 
+  const handleSelectRow = (key: string): void => {
+    setOpenModal(OpenModal.TradePath);
+    setSelectedPathIndex(parseInt(key, 10));
+  };
+
+  const handleCloseModal = (): void => {
+    setOpenModal(OpenModal.None);
+    setSelectedPathIndex(-1);
+  };
+
   // Elements
 
   return (
-    <div className="flex h-full w-full flex-col items-start justify-center p-8">
-      <Head>
-        <title>{`${appName} - Trades`}</title>
-      </Head>
+    <>
+      <div className="flex h-full w-full flex-col items-start justify-center p-8">
+        <Head>
+          <title>{`${appName} - Trades`}</title>
+        </Head>
+        <div className="flex w-full flex-row items-center justify-between pb-6">
+          <span className="pl-4 text-4xl font-bold">Available Trades</span>
+        </div>
+        <div className="h-0 w-full grow-[1]">
+          <Table
+            totalCount={tradePaths.length}
+            headers={[
+              {
+                value: 'Item',
+                className: 'w-[42%]',
+                sortBy: TradePathsSortBy.Item,
+              },
+              {
+                value: 'Wish',
+                className: 'w-[42%]',
+                sortBy: TradePathsSortBy.Wish,
+              },
+              {
+                value: '# of Trades',
+                className: 'w-[16%]',
+                sortBy: TradePathsSortBy.TradeCount,
+              },
+            ]}
+            data={sortedTradePaths.map((path, index) => {
+              return {
+                key: `${index}`,
+                values: [
+                  `${path[0].item?.name}`,
+                  {
+                    title: `${path.slice(-1)[0].item?.name}\n\tOwner: ${
+                      path.slice(-1)[0].user?.displayName
+                    }`,
+                    node: (
+                      <div
+                        key={`${path.slice(-1)[0].item?.name}\n\tOwner: ${
+                          path.slice(-1)[0].user?.displayName
+                        }`}
+                      >
+                        <span>{`${path.slice(-1)[0].item?.name}\n`}</span>
+                        <span className="pl-6 text-xs font-bold italic">
+                          Owner:{' '}
+                        </span>
+                        <span className="text-xs font-normal italic">{`${
+                          path.slice(-1)[0].user?.displayName
+                        }`}</span>
+                      </div>
+                    ),
+                  },
+                  `${path.length - 1}`,
+                ],
+              };
+            })}
+            rowLineCount={2}
+            sortBy={tradePathsSortBy}
+            sortOrder={tradePathsSortOrder}
+            onSelectHeader={handleSelectHeader}
+            onSelectRow={handleSelectRow}
+          />
+        </div>
+      </div>
 
-      <div className="flex w-full flex-row items-center justify-between pb-6">
-        <span className="pl-4 text-4xl font-bold">Available Trades</span>
-      </div>
-      <div className="h-0 w-full grow-[1]">
-        <Table
-          totalCount={tradePaths.length}
-          headers={[
-            {
-              value: 'Item',
-              className: 'w-[42%]',
-              sortBy: TradePathsSortBy.Item,
-            },
-            {
-              value: 'Wish',
-              className: 'w-[42%]',
-              sortBy: TradePathsSortBy.Wish,
-            },
-            {
-              value: '# of Trades',
-              className: 'w-[16%]',
-              sortBy: TradePathsSortBy.TradeCount,
-            },
-          ]}
-          data={sortedTradePaths.map((path, index) => {
-            return {
-              key: `${index}`,
-              values: [
-                `${path[0].item?.name}`,
-                {
-                  title: `${path.slice(-1)[0].item?.name}\n\tOwner: ${
-                    path.slice(-1)[0].user?.displayName
-                  }`,
-                  node: (
-                    <div
-                      key={`${path.slice(-1)[0].item?.name}\n\tOwner: ${
-                        path.slice(-1)[0].user?.displayName
-                      }`}
-                    >
-                      <span>{`${path.slice(-1)[0].item?.name}\n`}</span>
-                      <span className="pl-6 text-xs font-bold italic">
-                        Owner:{' '}
-                      </span>
-                      <span className="text-xs font-normal italic">{`${
-                        path.slice(-1)[0].user?.displayName
-                      }`}</span>
-                    </div>
-                  ),
-                },
-                `${path.length - 1}`,
-              ],
-            };
-          })}
-          rowLineCount={2}
-          sortBy={tradePathsSortBy}
-          sortOrder={tradePathsSortOrder}
-          onSelectHeader={handleSelectHeader}
-        />
-      </div>
-    </div>
+      {((): JSX.Element | undefined => {
+        switch (openModal) {
+          case OpenModal.TradePath:
+            if (selectedPathIndex >= 0) {
+              return (
+                <TradePathModal
+                  tradePath={sortedTradePaths[selectedPathIndex]}
+                  onClose={handleCloseModal}
+                />
+              );
+            }
+            break;
+          default:
+            break;
+        }
+        return undefined;
+      })()}
+    </>
   );
 };
 
