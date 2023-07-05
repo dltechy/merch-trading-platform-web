@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Router, { useRouter } from 'next/router';
-import { FC, FormEvent, useEffect, useState } from 'react';
+import { FC, FormEvent, useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import {
@@ -21,6 +21,11 @@ export const Header: FC = () => {
   // Properties
 
   const appName = process.env.NEXT_PUBLIC_APP_NAME;
+
+  const publicPagesRegex = useMemo(
+    () => /^\/(login|register|items)(\/|\?|$)/,
+    [],
+  );
 
   const { pathname } = useRouter();
 
@@ -83,23 +88,40 @@ export const Header: FC = () => {
 
     if (user) {
       setIsRenderAllowed(true);
-    } else if (pathname.search(/^\/(login|register)(\/|\?|$)/) === -1) {
-      if (isLogoutTriggered) {
-        dispatch(
-          addToastMessage({
-            type: ToastType.Info,
-            message: 'Logout successful',
-          }),
-        );
-      }
+    } else if (isLogoutTriggered) {
+      dispatch(
+        addToastMessage({
+          type: ToastType.Info,
+          message: 'Logout successful',
+        }),
+      );
 
+      setIsRenderAllowed(false);
+
+      if (pathname.search(publicPagesRegex) === -1) {
+        Router.push('/login');
+      }
+    } else if (pathname.search(publicPagesRegex) === -1) {
       setIsRenderAllowed(false);
 
       Router.push('/login');
     }
-  }, [pathname, initializationState, user, isLogoutTriggered, dispatch]);
+  }, [
+    publicPagesRegex,
+    pathname,
+    initializationState,
+    user,
+    isLogoutTriggered,
+    dispatch,
+  ]);
 
   // Handlers
+
+  const handleLogin = (e: FormEvent): void => {
+    e.preventDefault();
+
+    Router.push('/login');
+  };
 
   const handleLogout = (e: FormEvent): void => {
     e.preventDefault();
@@ -121,7 +143,7 @@ export const Header: FC = () => {
           </div>
         </Link>
 
-        {isRenderAllowed && (
+        {isRenderAllowed ? (
           <>
             <div className="absolute left-1/2 flex h-16 -translate-x-1/2 space-x-[-2px]">
               <HeaderTab
@@ -158,6 +180,17 @@ export const Header: FC = () => {
               />
             </div>
           </>
+        ) : (
+          pathname.search(/^\/(login|register)(\/|\?|$)/) === -1 && (
+            <div>
+              <input
+                className="mr-4 cursor-pointer rounded-md bg-white px-3 py-2 font-semibold hover:bg-gray-200"
+                type="submit"
+                value="Login"
+                onClick={handleLogin}
+              />
+            </div>
+          )
         )}
       </div>
     </div>
