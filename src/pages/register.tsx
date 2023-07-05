@@ -2,7 +2,7 @@ import { Formik } from 'formik';
 import { NextPage } from 'next';
 import Head from 'next/head';
 import Router from 'next/router';
-import { useEffect, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { FormCard } from '@app/modules/common/components/FormCard';
@@ -117,25 +117,39 @@ const Register: NextPage = () => {
         <title>{`${appName} - Registration`}</title>
       </Head>
 
-      <FormCard title="Register" className="w-1/4">
-        <Formik
-          initialValues={{
-            email: '',
-            password: '',
-            confirmPassword: '',
-            displayName: '',
-          }}
-          validationSchema={registerValidator}
-          onSubmit={handleRegister}
-        >
-          {({
-            values,
-            errors,
-            touched,
-            handleSubmit,
-            handleBlur,
-            handleChange,
-          }): JSX.Element => (
+      <Formik
+        initialValues={{
+          email: '',
+          password: '',
+          confirmPassword: '',
+          displayName: '',
+        }}
+        validationSchema={registerValidator}
+        onSubmit={handleRegister}
+      >
+        {({
+          values,
+          errors,
+          touched,
+          handleSubmit,
+          handleBlur,
+          handleChange,
+        }): JSX.Element =>
+          ((child: ReactNode): JSX.Element => (
+            <>
+              <FormCard
+                title="Register"
+                className="max-sm:hidden sm:w-1/2 lg:w-1/3 xl:w-1/4"
+              >
+                {child}
+              </FormCard>
+
+              <div className="w-full p-8 sm:hidden">
+                <h1 className="mb-6 text-4xl font-bold">Register</h1>
+                {child}
+              </div>
+            </>
+          ))(
             <form onSubmit={handleSubmit}>
               <div className="space-y-6">
                 <LabelledTextBox
@@ -190,10 +204,10 @@ const Register: NextPage = () => {
                 />
                 <SecondaryButton value="Cancel" onClick={handleCancel} />
               </div>
-            </form>
-          )}
-        </Formik>
-      </FormCard>
+            </form>,
+          )
+        }
+      </Formik>
     </div>
   );
 };

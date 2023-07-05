@@ -3,7 +3,7 @@ import { NextPage } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
 import Router from 'next/router';
-import { useEffect, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { LoginDto, loginValidator } from '@app/modules/auth/dtos/login.dto';
@@ -105,23 +105,37 @@ const Login: NextPage = () => {
         <title>{`${appName} - Login`}</title>
       </Head>
 
-      <FormCard title="Login" className="w-1/4">
-        <Formik
-          initialValues={{
-            email: '',
-            password: '',
-          }}
-          validationSchema={loginValidator}
-          onSubmit={handleLogin}
-        >
-          {({
-            values,
-            errors,
-            touched,
-            handleSubmit,
-            handleBlur,
-            handleChange,
-          }): JSX.Element => (
+      <Formik
+        initialValues={{
+          email: '',
+          password: '',
+        }}
+        validationSchema={loginValidator}
+        onSubmit={handleLogin}
+      >
+        {({
+          values,
+          errors,
+          touched,
+          handleSubmit,
+          handleBlur,
+          handleChange,
+        }): JSX.Element =>
+          ((child: ReactNode): JSX.Element => (
+            <>
+              <FormCard
+                title="Login"
+                className="max-sm:hidden sm:w-1/2 lg:w-1/3 xl:w-1/4"
+              >
+                {child}
+              </FormCard>
+
+              <div className="w-full p-8 sm:hidden">
+                <h1 className="mb-6 text-4xl font-bold">Login</h1>
+                {child}
+              </div>
+            </>
+          ))(
             <form onSubmit={handleSubmit}>
               <div className="space-y-6">
                 <LabelledTextBox
@@ -162,10 +176,10 @@ const Login: NextPage = () => {
                   Register here
                 </Link>
               </div>
-            </form>
-          )}
-        </Formik>
-      </FormCard>
+            </form>,
+          )
+        }
+      </Formik>
     </div>
   );
 };
