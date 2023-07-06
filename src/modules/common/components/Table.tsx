@@ -346,8 +346,8 @@ export const Table: FC<Props> = ({
         </div>
       </div>
 
-      <div className="flex w-full items-center justify-between px-4 pt-4 text-lg">
-        <div>
+      <div className="flex w-full justify-between px-4 pt-4 text-lg max-md:items-start md:items-center">
+        <div className="flex max-md:w-1/2 max-md:flex-col max-md:pt-14 md:whitespace-pre">
           <span className="font-bold">Total count: </span>
           <span>{totalCount}</span>
         </div>
@@ -391,7 +391,10 @@ export const Table: FC<Props> = ({
                 onClick={(): void => handleSelectPage(page + 1)}
               />
             </div>
-            <label htmlFor="rowCount" className="flex flex-row items-center">
+            <label
+              htmlFor="rowCount"
+              className="flex max-md:w-1/2 max-md:flex-col max-md:items-end max-md:pt-14 md:items-center md:whitespace-pre"
+            >
               <span className="pr-2 font-bold hover:cursor-text">
                 Items per page:{' '}
               </span>
