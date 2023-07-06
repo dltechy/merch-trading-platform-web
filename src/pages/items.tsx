@@ -182,7 +182,7 @@ const Items: NextPage = () => {
           <title>{`${appName} - Items`}</title>
         </Head>
 
-        <div className="flex w-full flex-row items-center justify-between pb-6">
+        <div className="flex w-full items-center justify-between pb-6 max-md:flex-col max-md:space-y-4 md:flex-row">
           <span className="pl-4 text-4xl font-bold">Tradable Items</span>
           <div className="flex space-x-4 pr-2">
             {isAdmin && (
