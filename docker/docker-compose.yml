@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+    $WEB_CONTAINER_NAME:
+        container_name: $WEB_CONTAINER_NAME
+        image: $WEB_CONTAINER_NAME:$BUILD_NUMBER
+        init: true
+        restart: unless-stopped
+        networks:
+            - $NETWORK_NAME
+
+networks:
+    $NETWORK_NAME:
+        name: $NETWORK_NAME
+        external: true

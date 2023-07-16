@@ -4,7 +4,8 @@ pipeline {
     environment {
         BUILDER_CONTAINER_NAME = '$WEB_CONTAINER_NAME-builder'
 
-        ENV_FILENAME = '.env'
+        ENV_PATH = '.env'
+        DOCKER_COMPOSE_PATH = 'docker/docker-compose.yml'
     }
 
     options {
@@ -49,7 +50,7 @@ pipeline {
             }
 
             steps {
-                writeFile file: ENV_FILENAME, text: """\
+                writeFile file: ENV_PATH, text: """\
                     PORT=$WEB_PORT
 
                     NEXT_PUBLIC_APP_NAME="$APP_NAME"
@@ -58,7 +59,7 @@ pipeline {
                     NEXT_PUBLIC_APP_HOST="$SERVER_URL"
                     """.stripIndent()
 
-                sh 'cat ' + ENV_FILENAME
+                sh 'cat ' + ENV_PATH
             }
         }
 
@@ -97,12 +98,12 @@ pipeline {
             }
 
             steps {
-                sh 'docker run' +
-                    ' --name $WEB_CONTAINER_NAME' +
-                    ' --restart unless-stopped' +
-                    ' --network $NETWORK_NAME' +
-                    ' -d' +
-                    ' $WEB_CONTAINER_NAME:$BUILD_NUMBER'
+                sh 'cat $DOCKER_COMPOSE_PATH |' +
+                    ' envsubst |' +
+                    ' docker-compose' +
+                    ' -f -' +
+                    ' up' +
+                    ' -d'
             }
         }
 
