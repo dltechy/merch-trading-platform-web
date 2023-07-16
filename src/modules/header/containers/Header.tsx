@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Router, { useRouter } from 'next/router';
-import { FC, useEffect, useMemo, useState } from 'react';
+import { FC, useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import {
@@ -26,11 +26,6 @@ export const Header: FC = () => {
 
   const appName = process.env.NEXT_PUBLIC_APP_NAME;
 
-  const publicPagesRegex = useMemo(
-    () => /^\/(login|register|items)(\/|\?|$)/,
-    [],
-  );
-
   const { pathname } = useRouter();
 
   const [initializationState, setInitializationState] = useState(
@@ -49,10 +44,23 @@ export const Header: FC = () => {
 
   const dispatch = useDispatch();
 
+  const checkIfInPage = useCallback(
+    (page: string): boolean => {
+      const pageRegex = new RegExp(`^/${page}(/|\\?|$)`);
+      return pathname.search(pageRegex) !== -1;
+    },
+    [pathname],
+  );
+
+  const checkIfInPublicPage = useCallback((): boolean => {
+    return checkIfInPage('(login|register|items)');
+  }, [checkIfInPage]);
+
   // Effects
 
   useEffect(() => {
-    if (pathname.search(/^(\/\?|\/$|\?|$)/) !== -1) {
+    const pageRegex = /^(\/\?|\/$|\?|$)/;
+    if (pathname.search(pageRegex) !== -1) {
       Router.replace('/items');
     }
   }, [pathname]);
@@ -104,17 +112,16 @@ export const Header: FC = () => {
 
       setIsRenderAllowed(false);
 
-      if (pathname.search(publicPagesRegex) === -1) {
+      if (!checkIfInPublicPage()) {
         Router.push('/login');
       }
-    } else if (pathname.search(publicPagesRegex) === -1) {
+    } else if (!checkIfInPublicPage()) {
       setIsRenderAllowed(false);
 
       Router.push('/login');
     }
   }, [
-    publicPagesRegex,
-    pathname,
+    checkIfInPublicPage,
     initializationState,
     user,
     isLogoutTriggered,
@@ -170,24 +177,24 @@ export const Header: FC = () => {
             <HeaderTab
               href="/items"
               text="Tradable Items"
-              isSelected={pathname.search(/^\/items(\/|\?|$)/) !== -1}
+              isSelected={checkIfInPage('items')}
             />
             {isRenderAllowed && (
               <>
                 <HeaderTab
                   href="/my-items"
                   text="My Items"
-                  isSelected={pathname.search(/^\/my-items(\/|\?|$)/) !== -1}
+                  isSelected={checkIfInPage('my-items')}
                 />
                 <HeaderTab
                   href="/my-wishes"
                   text="My Wishes"
-                  isSelected={pathname.search(/^\/my-wishes(\/|\?|$)/) !== -1}
+                  isSelected={checkIfInPage('my-wishes')}
                 />
                 <HeaderTab
                   href="/trades"
                   text="Find Trades"
-                  isSelected={pathname.search(/^\/trades(\/|\?|$)/) !== -1}
+                  isSelected={checkIfInPage('trades')}
                 />
               </>
             )}
@@ -207,7 +214,7 @@ export const Header: FC = () => {
                 />
               </>
             ) : (
-              pathname.search(/^\/(login|register)(\/|\?|$)/) === -1 && (
+              !checkIfInPage('(login|register)') && (
                 <input
                   className="mr-4 cursor-pointer rounded-md bg-white px-3 py-2 font-semibold hover:bg-gray-200"
                   type="submit"
@@ -255,47 +262,55 @@ export const Header: FC = () => {
               <SidebarTab
                 href="/items"
                 text="Tradable Items"
-                isSelected={pathname.search(/^\/items(\/|\?|$)/) !== -1}
+                isSelected={checkIfInPage('items')}
               />
               {isRenderAllowed && (
                 <>
                   <SidebarTab
                     href="/my-items"
                     text="My Items"
-                    isSelected={pathname.search(/^\/my-items(\/|\?|$)/) !== -1}
+                    isSelected={checkIfInPage('my-items')}
                   />
                   <SidebarTab
                     href="/my-wishes"
                     text="My Wishes"
-                    isSelected={pathname.search(/^\/my-wishes(\/|\?|$)/) !== -1}
+                    isSelected={checkIfInPage('my-wishes')}
                   />
                   <SidebarTab
                     href="/trades"
                     text="Find Trades"
-                    isSelected={pathname.search(/^\/trades(\/|\?|$)/) !== -1}
+                    isSelected={checkIfInPage('trades')}
                   />
                 </>
               )}
             </div>
 
-            <hr />
-
             {isRenderAllowed ? (
-              <button type="button" onClick={handleLogout}>
-                <div className="flex w-full items-center text-white hover:bg-cyan-600 hover:text-black">
-                  <div className="flex h-12 items-center px-4 font-semibold">
-                    <span className="font-semibold">Logout</span>
+              <>
+                <hr />
+
+                <button type="button" onClick={handleLogout}>
+                  <div className="flex w-full items-center text-white hover:bg-cyan-600 hover:text-black">
+                    <div className="flex h-12 items-center px-4 font-semibold">
+                      <span className="font-semibold">Logout</span>
+                    </div>
                   </div>
-                </div>
-              </button>
+                </button>
+              </>
             ) : (
-              <button type="button" onClick={handleLogin}>
-                <div className="flex w-full items-center text-white hover:bg-cyan-600 hover:text-black">
-                  <div className="flex h-12 items-center px-4 font-semibold">
-                    <span className="font-semibold">Login</span>
-                  </div>
-                </div>
-              </button>
+              !checkIfInPage('(login|register)') && (
+                <>
+                  <hr />
+
+                  <button type="button" onClick={handleLogin}>
+                    <div className="flex w-full items-center text-white hover:bg-cyan-600 hover:text-black">
+                      <div className="flex h-12 items-center px-4 font-semibold">
+                        <span className="font-semibold">Login</span>
+                      </div>
+                    </div>
+                  </button>
+                </>
+              )
             )}
           </div>
 
