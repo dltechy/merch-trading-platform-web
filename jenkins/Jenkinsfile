@@ -2,9 +2,12 @@ pipeline {
     agent none
 
     environment {
-        BUILDER_CONTAINER_NAME = '$WEB_CONTAINER_NAME-builder'
+        BUILD_DEPENDENCIES_IMAGE_NAME = '$WEB_CONTAINER_NAME-build-dependencies'
+        DEPLOY_DEPENDENCIES_IMAGE_NAME = '$WEB_CONTAINER_NAME-deploy-dependencies'
+        BUILDER_IMAGE_NAME = '$WEB_CONTAINER_NAME-builder'
 
         ENV_PATH = '.env'
+        DOCKERFILE_PATH = 'docker/Dockerfile'
         DOCKER_COMPOSE_PATH = 'docker/docker-compose.yml'
     }
 
@@ -59,7 +62,7 @@ pipeline {
                     NEXT_PUBLIC_APP_HOST="$SERVER_URL"
                     """.stripIndent()
 
-                sh 'cat ' + ENV_PATH
+                sh 'cat $ENV_PATH'
             }
         }
 
@@ -69,14 +72,38 @@ pipeline {
             }
 
             steps {
+                script {
+                    env.YARN_LOCK_HASH = sh(
+                        script: 'sha256sum -t yarn.lock | cut -d " " -f 1',
+                        returnStdout: true
+                    ).trim()
+                }
+
                 sh 'docker build' +
-                    ' --target builder' +
-                    ' -t "' + BUILDER_CONTAINER_NAME + '":$BUILD_NUMBER' +
+                    ' --target build-dependencies' +
+                    ' -t "' + BUILD_DEPENDENCIES_IMAGE_NAME + '":$YARN_LOCK_HASH' +
+                    ' -f $DOCKERFILE_PATH' +
                     ' .'
 
                 sh 'docker build' +
-                    ' --build-arg BUILDER_CONTAINER="' + BUILDER_CONTAINER_NAME + '":$BUILD_NUMBER' +
+                    ' --target deploy-dependencies' +
+                    ' -t "' + DEPLOY_DEPENDENCIES_IMAGE_NAME + '":$YARN_LOCK_HASH' +
+                    ' -f $DOCKERFILE_PATH' +
+                    ' .'
+
+                sh 'docker build' +
+                    ' --target builder' +
+                    ' --build-arg BUILD_DEPENDENCIES_IMAGE="' + BUILD_DEPENDENCIES_IMAGE_NAME + '":$YARN_LOCK_HASH' +
+                    ' -t "' + BUILDER_IMAGE_NAME + '":$BUILD_NUMBER' +
+                    ' -f $DOCKERFILE_PATH' +
+                    ' .'
+
+                sh 'docker build' +
+                    ' --target deployer' +
+                    ' --build-arg DEPLOY_DEPENDENCIES_IMAGE="' + DEPLOY_DEPENDENCIES_IMAGE_NAME + '":$YARN_LOCK_HASH' +
+                    ' --build-arg BUILDER_IMAGE="' + BUILDER_IMAGE_NAME + '":$BUILD_NUMBER' +
                     ' -t $WEB_CONTAINER_NAME:$BUILD_NUMBER' +
+                    ' -f $DOCKERFILE_PATH' +
                     ' .'
             }
         }
@@ -113,7 +140,7 @@ pipeline {
             }
 
             steps {
-                sh 'docker rmi \$(docker images "' + BUILDER_CONTAINER_NAME + '" | sed -nr \'/^([^ ]+) +(TAG|\'"$BUILD_NUMBER"\') .*/!s/^([^ ]+) +([^ ]+) .*/\\1:\\2/p\') || true'
+                sh 'docker rmi \$(docker images "' + BUILDER_IMAGE_NAME + '" | sed -nr \'/^([^ ]+) +(TAG|\'"$BUILD_NUMBER"\') .*/!s/^([^ ]+) +([^ ]+) .*/\\1:\\2/p\') || true'
                 sh 'docker rmi \$(docker images $WEB_CONTAINER_NAME | sed -nr \'/^([^ ]+) +(TAG|\'"$BUILD_NUMBER"\') .*/!s/^([^ ]+) +([^ ]+) .*/\\1:\\2/p\') || true'
             }
         }
