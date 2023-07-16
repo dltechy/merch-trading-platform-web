@@ -60,6 +60,8 @@ pipeline {
                     NEXT_PUBLIC_APP_DESCRIPTION="$APP_DESCRIPTION"
 
                     NEXT_PUBLIC_APP_HOST="$BASE_URL$SERVER_PATH"
+
+                    NEXT_PUBLIC_APP_BASE_PATH="$WEB_PATH"
                     """.stripIndent()
 
                 sh 'cat $ENV_PATH'

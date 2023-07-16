@@ -3,12 +3,13 @@ import { FC } from 'react';
 
 const Document: FC = () => {
   const appDescription = process.env.NEXT_PUBLIC_APP_DESCRIPTION;
+  const appBasePath = process.env.NEXT_PUBLIC_APP_BASE_PATH ?? '';
 
   return (
     <Html lang="en">
       <Head>
         <meta name="description" content={appDescription} />
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href={`${appBasePath}/images/favicon.ico`} />
       </Head>
       <body>
         <Main />
