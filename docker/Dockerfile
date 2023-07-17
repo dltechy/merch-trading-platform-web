@@ -15,13 +15,16 @@ COPY package.json yarn.lock ./
 RUN yarn install --prod
 
 FROM $BUILD_DEPENDENCIES_IMAGE AS builder
-COPY . .
+COPY .env next.config.js postcss.config.js tailwind.config.js tsconfig.json ./
+COPY styles ./styles/
+COPY public ./public/
+COPY src ./src/
 RUN yarn build
 
 FROM $BUILDER_IMAGE AS tagged-builder
 
 FROM $DEPLOY_DEPENDENCIES_IMAGE AS deployer
-COPY public ./public/
 COPY .env ./
+COPY public ./public/
 COPY --from=tagged-builder /web/.next ./.next/
 CMD yarn start
