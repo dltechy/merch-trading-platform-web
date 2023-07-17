@@ -24,7 +24,7 @@ RUN yarn build
 FROM $BUILDER_IMAGE AS tagged-builder
 
 FROM $DEPLOY_DEPENDENCIES_IMAGE AS deployer
-COPY .env ./
+COPY .env start.js ./
 COPY public ./public/
 COPY --from=tagged-builder /web/.next ./.next/
 CMD yarn start

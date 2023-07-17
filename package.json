@@ -5,18 +5,19 @@
   "scripts": {
     "prebuild": "rimraf .next",
     "build": "next build",
-    "start": "[ -e .env ] && set -a && . ./.env; next start",
+    "start": "node start.js",
     "start:dev": "nodemon",
     "lint": "eslint --max-warnings=0 \"**/*.{js,jsx,ts,tsx}\"",
     "lint:fix": "eslint --max-warnings=0 --fix \"**/*.{js,jsx,ts,tsx}\"",
     "test:clear": "rimraf coverage && jest --clearCache",
-    "test": "[ -e .env.test ] && set -a && . ./.env.test; jest",
+    "test": "jest",
     "test:watch": "yarn test --watch",
     "test:cov": "yarn test --coverage",
     "precommit": "lint-staged",
     "prepare": "husky install"
   },
   "dependencies": {
+    "@next/env": "^13.4.10",
     "@reduxjs/toolkit": "^1.9.5",
     "axios": "^1.4.0",
     "focus-trap-react": "^10.1.4",

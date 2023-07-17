@@ -2,5 +2,5 @@
   "watch": [
     ".env"
   ],
-  "exec": "[ -e .env ] && set -a && . ./.env; next dev"
+  "exec": "node start-dev.js"
 }
