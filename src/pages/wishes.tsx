@@ -231,6 +231,8 @@ const MyWishes: NextPage = () => {
               return {
                 key: userWish.id,
                 values: [userWish.item?.name ?? '', userWish.remarks],
+                isEditable: userWish.user?.id === user?.id,
+                isDeletable: userWish.user?.id === user?.id,
               };
             })}
             sortBy={userWishesSortBy}

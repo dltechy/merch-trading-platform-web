@@ -230,6 +230,8 @@ const MyItems: NextPage = () => {
               return {
                 key: userItem.id,
                 values: [userItem.item?.name ?? '', userItem.remarks],
+                isEditable: userItem.user?.id === user?.id,
+                isDeletable: userItem.user?.id === user?.id,
               };
             })}
             sortBy={userItemsSortBy}

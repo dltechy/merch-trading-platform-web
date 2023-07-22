@@ -23,6 +23,8 @@ interface Props {
         }
       | string
     )[];
+    isEditable?: boolean;
+    isDeletable?: boolean;
   }[];
   sortBy?: string;
   sortOrder?: SortOrder;
@@ -204,7 +206,7 @@ export const Table: FC<Props> = ({
               </tr>
             </thead>
             <tbody>
-              {data.map(({ key, values }) => {
+              {data.map(({ key, values, isEditable, isDeletable }) => {
                 return (
                   <tr
                     key={key}
@@ -277,16 +279,20 @@ export const Table: FC<Props> = ({
                           onKeyDown={(e): void => e.stopPropagation()}
                         >
                           <div className="flex items-center justify-center space-x-1">
-                            <ImageButton
-                              SvgImage={EditSvg}
-                              title="Edit"
-                              onClick={(): void => handleEdit(key)}
-                            />
-                            <ImageButton
-                              SvgImage={DeleteSvg}
-                              title="Delete"
-                              onClick={(): void => handleDelete(key)}
-                            />
+                            {isEditable && (
+                              <ImageButton
+                                SvgImage={EditSvg}
+                                title="Edit"
+                                onClick={(): void => handleEdit(key)}
+                              />
+                            )}
+                            {isDeletable && (
+                              <ImageButton
+                                SvgImage={DeleteSvg}
+                                title="Delete"
+                                onClick={(): void => handleDelete(key)}
+                              />
+                            )}
                           </div>
                         </button>
                       </td>

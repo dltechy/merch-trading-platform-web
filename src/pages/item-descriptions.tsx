@@ -211,6 +211,8 @@ const Items: NextPage = () => {
               return {
                 key: item.id,
                 values: [item.name, item.description],
+                isEditable: isAdmin,
+                isDeletable: isAdmin,
               };
             })}
             sortBy={itemsSortBy}
