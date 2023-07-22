@@ -179,11 +179,11 @@ const Items: NextPage = () => {
     <>
       <div className="flex h-full w-full flex-col items-start justify-center p-8">
         <Head>
-          <title>{`${appName} - Items`}</title>
+          <title>{`${appName} - Item Descriptions`}</title>
         </Head>
 
         <div className="flex w-full items-center justify-between pb-6 max-md:flex-col max-md:space-y-4 md:flex-row">
-          <span className="pl-4 text-4xl font-bold">Tradable Items</span>
+          <span className="pl-4 text-4xl font-bold">Item Descriptions</span>
           <div className="flex space-x-4 pr-2">
             {isAdmin && (
               <div className="w-24">

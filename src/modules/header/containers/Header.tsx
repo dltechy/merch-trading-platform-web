@@ -53,7 +53,7 @@ export const Header: FC = () => {
   );
 
   const checkIfInPublicPage = useCallback((): boolean => {
-    return checkIfInPage('(login|register|items)');
+    return checkIfInPage('(login|register|item-descriptions)');
   }, [checkIfInPage]);
 
   // Effects
@@ -61,7 +61,7 @@ export const Header: FC = () => {
   useEffect(() => {
     const pageRegex = /^(\/\?|\/$|\?|$)/;
     if (pathname.search(pageRegex) !== -1) {
-      Router.replace('/items');
+      Router.replace('/item-descriptions');
     }
   }, [pathname]);
 
@@ -175,9 +175,9 @@ export const Header: FC = () => {
 
           <div className="absolute left-1/2 flex h-16 -translate-x-1/2 space-x-[-2px] max-xl:hidden">
             <HeaderTab
-              href="/items"
-              text="Tradable Items"
-              isSelected={checkIfInPage('items')}
+              href="/item-descriptions"
+              text="Item Descriptions"
+              isSelected={checkIfInPage('item-descriptions')}
             />
             {isRenderAllowed && (
               <>
@@ -260,9 +260,9 @@ export const Header: FC = () => {
 
             <div className="flex w-full flex-col">
               <SidebarTab
-                href="/items"
-                text="Tradable Items"
-                isSelected={checkIfInPage('items')}
+                href="/item-descriptions"
+                text="Item Descriptions"
+                isSelected={checkIfInPage('item-descriptions')}
               />
               {isRenderAllowed && (
                 <>

@@ -17,7 +17,7 @@ export const HeaderTab: FC<Props> = ({ href, text, isSelected }) => {
         }`}
       >
         <div className="flex h-3/4 items-center border-x-2 border-cyan-400 px-3 py-2">
-          <span className="w-28 text-center font-semibold">{text}</span>
+          <span className="w-32 text-center font-semibold">{text}</span>
         </div>
       </div>
     </Link>
