@@ -15,7 +15,10 @@ import { AddUserItemModal } from '@app/modules/user-items/containers/AddUserItem
 import { DeleteUserItemModal } from '@app/modules/user-items/containers/DeleteUserItemModal';
 import { EditUserItemModal } from '@app/modules/user-items/containers/EditUserItemModal';
 import { GetUserItemsSortBy } from '@app/modules/user-items/dtos/get-user-items.dto';
-import { getUserItemsRequest } from '@app/modules/user-items/redux/user-items.slice';
+import {
+  getUserItemsRequest,
+  toggleIsMyItems,
+} from '@app/modules/user-items/redux/user-items.slice';
 import { UserItem } from '@app/modules/user-items/schemas/user-item';
 import { AppState } from '@app/redux/store';
 
@@ -43,6 +46,7 @@ const MyItems: NextPage = () => {
 
   const user = useSelector((state: AppState) => state.auth.user);
 
+  const isMyItems = useSelector((state: AppState) => state.userItems.isMyItems);
   const totalUserItemCount = useSelector(
     (state: AppState) => state.userItems.totalCount,
   );
@@ -58,7 +62,7 @@ const MyItems: NextPage = () => {
   const getUserItems = useCallback((): void => {
     dispatch(
       getUserItemsRequest({
-        searchUserId: user?.id,
+        searchUserId: isMyItems ? user?.id : undefined,
         searchItemName: userItemsSearchItemName,
         page: userItemsPage,
         count: userItemsCount,
@@ -73,6 +77,7 @@ const MyItems: NextPage = () => {
     userItemsSortBy,
     userItemsSortOrder,
     user,
+    isMyItems,
     dispatch,
   ]);
 
@@ -97,6 +102,10 @@ const MyItems: NextPage = () => {
   }, [getUserItemsError, dispatch]);
 
   // Handlers
+
+  const handleClickIsMyItems = (): void => {
+    dispatch(toggleIsMyItems());
+  };
 
   const handleSelectHeader = (headerSortBy: string): void => {
     if (userItemsSortBy === headerSortBy) {
@@ -172,17 +181,36 @@ const MyItems: NextPage = () => {
     <>
       <div className="flex h-full w-full flex-col items-start justify-center p-8">
         <Head>
-          <title>{`${appName} - My Items`}</title>
+          <title>{`${appName} - Items`}</title>
         </Head>
 
-        <div className="flex w-full items-center justify-between pb-6 max-md:flex-col max-md:space-y-4 md:flex-row">
-          <span className="pl-4 text-4xl font-bold">My Items</span>
-          <div className="flex space-x-4 pr-2">
-            <div className="w-24">
-              <PrimaryButton value="+ Add" onClick={handleClickAdd} />
+        <div className="flex w-full flex-col pb-6">
+          <div className="flex w-full justify-between max-md:flex-col max-md:items-center max-md:space-y-4 md:flex-row md:items-start">
+            <span className="pl-4 text-4xl font-bold">Items</span>
+            <div className="flex space-x-4 pr-2">
+              {user && (
+                <div className="w-24">
+                  <PrimaryButton value="+ Add" onClick={handleClickAdd} />
+                </div>
+              )}
+              <Search onSearch={handleSearch} isAutoSearchAllowed />
             </div>
-            <Search onSearch={handleSearch} isAutoSearchAllowed />
           </div>
+          {user && (
+            <label
+              htmlFor="isMyItems"
+              className="mt-3 flex w-fit cursor-pointer flex-row-reverse items-center justify-end p-1 md:ml-3"
+            >
+              <span className="pl-2 font-semibold">Only show my items</span>
+              <input
+                id="isMyItems"
+                type="checkbox"
+                className="cursor-pointer"
+                checked={isMyItems}
+                onClick={handleClickIsMyItems}
+              />
+            </label>
+          )}
         </div>
         <div className="h-0 w-full grow-[1]">
           <Table
@@ -190,26 +218,18 @@ const MyItems: NextPage = () => {
             headers={[
               {
                 value: 'Name',
-                className: 'w-1/3',
+                className: 'w-1/2',
                 sortBy: GetUserItemsSortBy.ItemName,
               },
               {
-                value: 'Description',
-                className: 'w-1/3',
-              },
-              {
                 value: 'Remarks',
-                className: 'w-1/3',
+                className: 'w-1/2',
               },
             ]}
             data={userItems.map((userItem) => {
               return {
                 key: userItem.id,
-                values: [
-                  userItem.item?.name ?? '',
-                  userItem.item?.description ?? '',
-                  userItem.remarks,
-                ],
+                values: [userItem.item?.name ?? '', userItem.remarks],
               };
             })}
             sortBy={userItemsSortBy}

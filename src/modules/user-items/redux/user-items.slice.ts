@@ -14,6 +14,7 @@ import { UpdateUserItemDto } from '../dtos/update-user-item.dto';
 import { UserItem } from '../schemas/user-item';
 
 export interface UserItemsState {
+  isMyItems: boolean;
   totalCount: number;
   userItems: UserItem[];
   createUserItem: ApiState;
@@ -23,6 +24,7 @@ export interface UserItemsState {
 }
 
 const initialState: UserItemsState = {
+  isMyItems: false,
   totalCount: 0,
   userItems: [],
   createUserItem: { ...initialApiState },
@@ -39,6 +41,7 @@ export const userItemsSlice = createSlice({
       state: UserItemsState,
       action: PayloadAction<
         | {
+            isMyItems?: boolean;
             totalCount?: boolean;
             userItems?: boolean;
             createUserItem?: boolean;
@@ -54,6 +57,9 @@ export const userItemsSlice = createSlice({
       }
 
       const newState = { ...state };
+      if (action.payload.isMyItems) {
+        newState.isMyItems = initialState.isMyItems;
+      }
       if (action.payload.totalCount) {
         newState.totalCount = initialState.totalCount;
       }
@@ -73,6 +79,12 @@ export const userItemsSlice = createSlice({
         newState.deleteUserItem = initialState.deleteUserItem;
       }
       return newState;
+    },
+    toggleIsMyItems: (state: UserItemsState) => {
+      return {
+        ...state,
+        isMyItems: !state.isMyItems,
+      };
     },
     createUserItemRequest: (
       state: UserItemsState,
@@ -226,6 +238,7 @@ export const userItemsSlice = createSlice({
 
 export const {
   resetUserItemsState,
+  toggleIsMyItems,
   createUserItemRequest,
   createUserItemSuccess,
   createUserItemFailure,

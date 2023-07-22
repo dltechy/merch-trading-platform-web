@@ -11,6 +11,7 @@ import {
   addToastMessage,
   ToastType,
 } from '@app/modules/common/redux/toast.slice';
+import { toggleIsMyItems } from '@app/modules/user-items/redux/user-items.slice';
 import { AddUserWishModal } from '@app/modules/user-wishes/containers/AddUserWishModal';
 import { DeleteUserWishModal } from '@app/modules/user-wishes/containers/DeleteUserWishModal';
 import { EditUserWishModal } from '@app/modules/user-wishes/containers/EditUserWishModal';
@@ -43,6 +44,7 @@ const MyWishes: NextPage = () => {
 
   const user = useSelector((state: AppState) => state.auth.user);
 
+  const isMyItems = useSelector((state: AppState) => state.userItems.isMyItems);
   const totalUserWishCount = useSelector(
     (state: AppState) => state.userWishes.totalCount,
   );
@@ -60,7 +62,7 @@ const MyWishes: NextPage = () => {
   const getUserWishes = useCallback((): void => {
     dispatch(
       getUserWishesRequest({
-        searchUserId: user?.id,
+        searchUserId: isMyItems ? user?.id : undefined,
         searchItemName: userWishesSearchItemName,
         page: userWishesPage,
         count: userWishesCount,
@@ -75,6 +77,7 @@ const MyWishes: NextPage = () => {
     userWishesSortBy,
     userWishesSortOrder,
     user,
+    isMyItems,
     dispatch,
   ]);
 
@@ -99,6 +102,10 @@ const MyWishes: NextPage = () => {
   }, [getUserWishesError, dispatch]);
 
   // Handlers
+
+  const handleClickIsMyWishes = (): void => {
+    dispatch(toggleIsMyItems());
+  };
 
   const handleSelectHeader = (headerSortBy: string): void => {
     if (userWishesSortBy === headerSortBy) {
@@ -175,17 +182,36 @@ const MyWishes: NextPage = () => {
     <>
       <div className="flex h-full w-full flex-col items-start justify-center p-8">
         <Head>
-          <title>{`${appName} - My Wishes`}</title>
+          <title>{`${appName} - Wishes`}</title>
         </Head>
 
-        <div className="flex w-full items-center justify-between pb-6 max-md:flex-col max-md:space-y-4 md:flex-row">
-          <span className="pl-4 text-4xl font-bold">My Wishes</span>
-          <div className="flex space-x-4 pr-2">
-            <div className="w-24">
-              <PrimaryButton value="+ Add" onClick={handleClickAdd} />
+        <div className="flex w-full flex-col pb-6">
+          <div className="flex w-full justify-between max-md:flex-col max-md:items-center max-md:space-y-4 md:flex-row md:items-start">
+            <span className="pl-4 text-4xl font-bold">Wishes</span>
+            <div className="flex space-x-4 pr-2">
+              {user && (
+                <div className="w-24">
+                  <PrimaryButton value="+ Add" onClick={handleClickAdd} />
+                </div>
+              )}
+              <Search onSearch={handleSearch} isAutoSearchAllowed />
             </div>
-            <Search onSearch={handleSearch} isAutoSearchAllowed />
           </div>
+          {user && (
+            <label
+              htmlFor="isMyWishes"
+              className="mt-3 flex w-fit cursor-pointer flex-row-reverse items-center justify-end p-1 md:ml-3"
+            >
+              <span className="pl-2 font-semibold">Only show my wishes</span>
+              <input
+                id="isMyWishes"
+                type="checkbox"
+                className="cursor-pointer"
+                checked={isMyItems}
+                onClick={handleClickIsMyWishes}
+              />
+            </label>
+          )}
         </div>
         <div className="h-0 w-full grow-[1]">
           <Table
@@ -193,26 +219,18 @@ const MyWishes: NextPage = () => {
             headers={[
               {
                 value: 'Name',
-                className: 'w-1/3',
+                className: 'w-1/2',
                 sortBy: GetUserWishesSortBy.ItemName,
               },
               {
-                value: 'Description',
-                className: 'w-1/3',
-              },
-              {
                 value: 'Remarks',
-                className: 'w-1/3',
+                className: 'w-1/2',
               },
             ]}
             data={userWishes.map((userWish) => {
               return {
                 key: userWish.id,
-                values: [
-                  userWish.item?.name ?? '',
-                  userWish.item?.description ?? '',
-                  userWish.remarks,
-                ],
+                values: [userWish.item?.name ?? '', userWish.remarks],
               };
             })}
             sortBy={userWishesSortBy}

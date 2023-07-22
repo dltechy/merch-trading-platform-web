@@ -53,7 +53,7 @@ export const Header: FC = () => {
   );
 
   const checkIfInPublicPage = useCallback((): boolean => {
-    return checkIfInPage('(login|register|item-descriptions)');
+    return checkIfInPage('(login|register|items|wishes|item-descriptions)');
   }, [checkIfInPage]);
 
   // Effects
@@ -61,7 +61,7 @@ export const Header: FC = () => {
   useEffect(() => {
     const pageRegex = /^(\/\?|\/$|\?|$)/;
     if (pathname.search(pageRegex) !== -1) {
-      Router.replace('/item-descriptions');
+      Router.replace('/items');
     }
   }, [pathname]);
 
@@ -175,28 +175,26 @@ export const Header: FC = () => {
 
           <div className="absolute left-1/2 flex h-16 -translate-x-1/2 space-x-[-2px] max-xl:hidden">
             <HeaderTab
+              href="/items"
+              text="Items"
+              isSelected={checkIfInPage('items')}
+            />
+            <HeaderTab
+              href="/wishes"
+              text="Wishes"
+              isSelected={checkIfInPage('wishes')}
+            />
+            <HeaderTab
               href="/item-descriptions"
               text="Item Descriptions"
               isSelected={checkIfInPage('item-descriptions')}
             />
             {isRenderAllowed && (
-              <>
-                <HeaderTab
-                  href="/my-items"
-                  text="My Items"
-                  isSelected={checkIfInPage('my-items')}
-                />
-                <HeaderTab
-                  href="/my-wishes"
-                  text="My Wishes"
-                  isSelected={checkIfInPage('my-wishes')}
-                />
-                <HeaderTab
-                  href="/trades"
-                  text="Find Trades"
-                  isSelected={checkIfInPage('trades')}
-                />
-              </>
+              <HeaderTab
+                href="/trades"
+                text="Find Trades"
+                isSelected={checkIfInPage('trades')}
+              />
             )}
           </div>
 
@@ -260,28 +258,26 @@ export const Header: FC = () => {
 
             <div className="flex w-full flex-col">
               <SidebarTab
+                href="/items"
+                text="Items"
+                isSelected={checkIfInPage('items')}
+              />
+              <SidebarTab
+                href="/wishes"
+                text="Wishes"
+                isSelected={checkIfInPage('wishes')}
+              />
+              <SidebarTab
                 href="/item-descriptions"
                 text="Item Descriptions"
                 isSelected={checkIfInPage('item-descriptions')}
               />
               {isRenderAllowed && (
-                <>
-                  <SidebarTab
-                    href="/my-items"
-                    text="My Items"
-                    isSelected={checkIfInPage('my-items')}
-                  />
-                  <SidebarTab
-                    href="/my-wishes"
-                    text="My Wishes"
-                    isSelected={checkIfInPage('my-wishes')}
-                  />
-                  <SidebarTab
-                    href="/trades"
-                    text="Find Trades"
-                    isSelected={checkIfInPage('trades')}
-                  />
-                </>
+                <SidebarTab
+                  href="/trades"
+                  text="Find Trades"
+                  isSelected={checkIfInPage('trades')}
+                />
               )}
             </div>
 
