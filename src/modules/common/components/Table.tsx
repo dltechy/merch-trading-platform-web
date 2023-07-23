@@ -353,7 +353,11 @@ export const Table: FC<Props> = ({
       </div>
 
       <div className="flex w-full justify-between px-4 pt-4 text-lg max-md:items-start md:items-center">
-        <div className="flex max-md:w-1/2 max-md:flex-col max-md:pt-14 md:whitespace-pre">
+        <div
+          className={`flex max-md:w-1/2 max-md:flex-col md:whitespace-pre ${
+            page != null && count != null ? 'max-md:pt-14' : ''
+          }`}
+        >
           <span className="font-bold">Total count: </span>
           <span>{totalCount}</span>
         </div>
