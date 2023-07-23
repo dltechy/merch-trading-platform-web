@@ -1,10 +1,11 @@
 import { Formik } from 'formik';
-import { FC, useCallback, useEffect } from 'react';
+import { FC, useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { LabelledTextArea } from '@app/modules/common/components/LabelledTextArea';
 import { LabelledTextBox } from '@app/modules/common/components/LabelledTextBox';
 import { Modal } from '@app/modules/common/components/Modal';
+import { NegativeButton } from '@app/modules/common/components/NegativeButton';
 import { PrimaryButton } from '@app/modules/common/components/PrimaryButton';
 import { SecondaryButton } from '@app/modules/common/components/SecondaryButton';
 import {
@@ -22,15 +23,28 @@ import {
   updateUserItemRequest,
 } from '../redux/user-items.slice';
 import { UserItem } from '../schemas/user-item';
+import { DeleteUserItemModal } from './DeleteUserItemModal';
 
 interface Props {
   userItem: UserItem;
   onEdit: () => void;
+  onDelete: () => void;
   onClose: () => void;
 }
 
-export const EditUserItemModal: FC<Props> = ({ userItem, onEdit, onClose }) => {
+export const EditUserItemModal: FC<Props> = ({
+  userItem,
+  onEdit,
+  onDelete,
+  onClose,
+}) => {
   // Properties
+
+  enum OpenModal {
+    None,
+    Delete,
+  }
+  const [openModal, setOpenModal] = useState(OpenModal.None);
 
   const isUpdateUserItemTriggered = useSelector(
     (state: AppState) => state.userItems.updateUserItem.isTriggered,
@@ -99,70 +113,102 @@ export const EditUserItemModal: FC<Props> = ({ userItem, onEdit, onClose }) => {
     onClose();
   };
 
+  const handleClickDelete = (): void => {
+    setOpenModal(OpenModal.Delete);
+  };
+
+  const handleDelete = (): void => {
+    setOpenModal(OpenModal.None);
+    onDelete();
+  };
+
+  const handleCloseModal = (): void => {
+    setOpenModal(OpenModal.None);
+  };
+
   // Elements
 
   return (
-    <Modal title="Edit item" onPressEscape={handleClose}>
-      <Formik
-        initialValues={{
-          id: '',
-          remarks: userItem.remarks,
-        }}
-        validationSchema={updateUserItemValidator}
-        onSubmit={handleEdit}
+    <>
+      <Modal
+        title="Edit item"
+        onPressEscape={openModal === OpenModal.None ? handleClose : undefined}
       >
-        {({
-          values,
-          errors,
-          touched,
-          handleSubmit,
-          handleBlur,
-          handleChange,
-        }): JSX.Element => {
-          return (
-            <form onSubmit={handleSubmit}>
-              <div className="relative space-y-6">
-                <LabelledTextBox
-                  className=""
-                  list="itemNameAutocomplete"
-                  id="itemName"
-                  label="Name"
-                  type="text"
-                  value={userItem.item?.name}
-                  disabled
-                />
+        <Formik
+          initialValues={{
+            id: '',
+            remarks: userItem.remarks,
+          }}
+          validationSchema={updateUserItemValidator}
+          onSubmit={handleEdit}
+        >
+          {({
+            values,
+            errors,
+            touched,
+            handleSubmit,
+            handleBlur,
+            handleChange,
+          }): JSX.Element => {
+            return (
+              <form onSubmit={handleSubmit}>
+                <div className="relative space-y-6">
+                  <LabelledTextBox
+                    className=""
+                    list="itemNameAutocomplete"
+                    id="itemName"
+                    label="Name"
+                    type="text"
+                    value={userItem.item?.name}
+                    disabled
+                  />
+                  <LabelledTextArea
+                    id="itemDescription"
+                    label="Description"
+                    rows={4}
+                    value={userItem.item?.description}
+                    disabled
+                  />
+                  <LabelledTextArea
+                    id="remarks"
+                    label="Remarks"
+                    rows={4}
+                    hasError={!!errors.remarks && touched.remarks}
+                    error={errors.remarks}
+                    value={values.remarks}
+                    onBlur={handleBlur}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div className="mt-8 flex flex-row-reverse space-x-4 space-x-reverse">
+                  <PrimaryButton
+                    value={isUpdateUserItemLoading ? 'Editing...' : 'Edit'}
+                    disabled={isUpdateUserItemLoading}
+                  />
+                  <NegativeButton value="Delete" onClick={handleClickDelete} />
+                  <SecondaryButton value="Cancel" onClick={handleClose} />
+                </div>
+              </form>
+            );
+          }}
+        </Formik>
+      </Modal>
 
-                <LabelledTextArea
-                  id="itemDescription"
-                  label="Description"
-                  rows={4}
-                  value={userItem.item?.description}
-                  disabled
-                />
-
-                <LabelledTextArea
-                  id="remarks"
-                  label="Remarks"
-                  rows={4}
-                  hasError={!!errors.remarks && touched.remarks}
-                  error={errors.remarks}
-                  value={values.remarks}
-                  onBlur={handleBlur}
-                  onChange={handleChange}
-                />
-              </div>
-
-              <div className="mt-8 flex flex-row-reverse space-x-4 space-x-reverse">
-                <PrimaryButton
-                  value={isUpdateUserItemLoading ? 'Editing...' : 'Edit'}
-                  disabled={isUpdateUserItemLoading}
-                />
-                <SecondaryButton value="Cancel" onClick={handleClose} />
-              </div>
-            </form>
-          );
-        }}
-      </Formik>
-    </Modal>
+      {((): JSX.Element | undefined => {
+        switch (openModal) {
+          case OpenModal.Delete:
+            return (
+              <DeleteUserItemModal
+                userItem={userItem}
+                onDelete={handleDelete}
+                onClose={handleCloseModal}
+              />
+            );
+          default:
+            break;
+        }
+        return undefined;
+      })()}
+    </>
   );
 };

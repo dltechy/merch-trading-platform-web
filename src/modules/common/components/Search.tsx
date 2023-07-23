@@ -67,7 +67,7 @@ export const Search: FC<Props> = ({
     <div className={className}>
       <form className="flex flex-row space-x-4" onSubmit={handleSearch}>
         {searchKeys && (
-          <div className="w-64">
+          <div className="w-60">
             <Dropdown
               id="searchKeys"
               values={searchKeys}
@@ -76,7 +76,7 @@ export const Search: FC<Props> = ({
             />
           </div>
         )}
-        <div className="w-64">
+        <div className="w-60">
           <TextBox
             type="text"
             value={searchString}

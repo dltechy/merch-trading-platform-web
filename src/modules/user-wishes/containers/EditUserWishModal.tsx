@@ -1,10 +1,11 @@
 import { Formik } from 'formik';
-import { FC, useCallback, useEffect } from 'react';
+import { FC, useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { LabelledTextArea } from '@app/modules/common/components/LabelledTextArea';
 import { LabelledTextBox } from '@app/modules/common/components/LabelledTextBox';
 import { Modal } from '@app/modules/common/components/Modal';
+import { NegativeButton } from '@app/modules/common/components/NegativeButton';
 import { PrimaryButton } from '@app/modules/common/components/PrimaryButton';
 import { SecondaryButton } from '@app/modules/common/components/SecondaryButton';
 import {
@@ -22,15 +23,28 @@ import {
   updateUserWishRequest,
 } from '../redux/user-wishes.slice';
 import { UserWish } from '../schemas/user-wish';
+import { DeleteUserWishModal } from './DeleteUserWishModal';
 
 interface Props {
   userWish: UserWish;
   onEdit: () => void;
+  onDelete: () => void;
   onClose: () => void;
 }
 
-export const EditUserWishModal: FC<Props> = ({ userWish, onEdit, onClose }) => {
+export const EditUserWishModal: FC<Props> = ({
+  userWish,
+  onEdit,
+  onDelete,
+  onClose,
+}) => {
   // Properties
+
+  enum OpenModal {
+    None,
+    Delete,
+  }
+  const [openModal, setOpenModal] = useState(OpenModal.None);
 
   const isUpdateUserWishTriggered = useSelector(
     (state: AppState) => state.userWishes.updateUserWish.isTriggered,
@@ -99,70 +113,102 @@ export const EditUserWishModal: FC<Props> = ({ userWish, onEdit, onClose }) => {
     onClose();
   };
 
+  const handleClickDelete = (): void => {
+    setOpenModal(OpenModal.Delete);
+  };
+
+  const handleDelete = (): void => {
+    setOpenModal(OpenModal.None);
+    onDelete();
+  };
+
+  const handleCloseModal = (): void => {
+    setOpenModal(OpenModal.None);
+  };
+
   // Elements
 
   return (
-    <Modal title="Edit wish" onPressEscape={handleClose}>
-      <Formik
-        initialValues={{
-          id: '',
-          remarks: userWish.remarks,
-        }}
-        validationSchema={updateUserWishValidator}
-        onSubmit={handleEdit}
+    <>
+      <Modal
+        title="Edit wish"
+        onPressEscape={openModal === OpenModal.None ? handleClose : undefined}
       >
-        {({
-          values,
-          errors,
-          touched,
-          handleSubmit,
-          handleBlur,
-          handleChange,
-        }): JSX.Element => {
-          return (
-            <form onSubmit={handleSubmit}>
-              <div className="relative space-y-6">
-                <LabelledTextBox
-                  className=""
-                  list="itemNameAutocomplete"
-                  id="itemName"
-                  label="Name"
-                  type="text"
-                  value={userWish.item?.name}
-                  disabled
-                />
+        <Formik
+          initialValues={{
+            id: '',
+            remarks: userWish.remarks,
+          }}
+          validationSchema={updateUserWishValidator}
+          onSubmit={handleEdit}
+        >
+          {({
+            values,
+            errors,
+            touched,
+            handleSubmit,
+            handleBlur,
+            handleChange,
+          }): JSX.Element => {
+            return (
+              <form onSubmit={handleSubmit}>
+                <div className="relative space-y-6">
+                  <LabelledTextBox
+                    className=""
+                    list="itemNameAutocomplete"
+                    id="itemName"
+                    label="Name"
+                    type="text"
+                    value={userWish.item?.name}
+                    disabled
+                  />
+                  <LabelledTextArea
+                    id="itemDescription"
+                    label="Description"
+                    rows={4}
+                    value={userWish.item?.description}
+                    disabled
+                  />
+                  <LabelledTextArea
+                    id="remarks"
+                    label="Remarks"
+                    rows={4}
+                    hasError={!!errors.remarks && touched.remarks}
+                    error={errors.remarks}
+                    value={values.remarks}
+                    onBlur={handleBlur}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div className="mt-8 flex flex-row-reverse space-x-4 space-x-reverse">
+                  <PrimaryButton
+                    value={isUpdateUserWishLoading ? 'Editing...' : 'Edit'}
+                    disabled={isUpdateUserWishLoading}
+                  />
+                  <NegativeButton value="Delete" onClick={handleClickDelete} />
+                  <SecondaryButton value="Cancel" onClick={handleClose} />
+                </div>
+              </form>
+            );
+          }}
+        </Formik>
+      </Modal>
 
-                <LabelledTextArea
-                  id="itemDescription"
-                  label="Description"
-                  rows={4}
-                  value={userWish.item?.description}
-                  disabled
-                />
-
-                <LabelledTextArea
-                  id="remarks"
-                  label="Remarks"
-                  rows={4}
-                  hasError={!!errors.remarks && touched.remarks}
-                  error={errors.remarks}
-                  value={values.remarks}
-                  onBlur={handleBlur}
-                  onChange={handleChange}
-                />
-              </div>
-
-              <div className="mt-8 flex flex-row-reverse space-x-4 space-x-reverse">
-                <PrimaryButton
-                  value={isUpdateUserWishLoading ? 'Editing...' : 'Edit'}
-                  disabled={isUpdateUserWishLoading}
-                />
-                <SecondaryButton value="Cancel" onClick={handleClose} />
-              </div>
-            </form>
-          );
-        }}
-      </Formik>
-    </Modal>
+      {((): JSX.Element | undefined => {
+        switch (openModal) {
+          case OpenModal.Delete:
+            return (
+              <DeleteUserWishModal
+                userWish={userWish}
+                onDelete={handleDelete}
+                onClose={handleCloseModal}
+              />
+            );
+          default:
+            break;
+        }
+        return undefined;
+      })()}
+    </>
   );
 };

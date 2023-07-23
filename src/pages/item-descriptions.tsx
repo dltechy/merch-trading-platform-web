@@ -3,16 +3,15 @@ import Head from 'next/head';
 import { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
+import { CardGrid } from '@app/modules/common/components/CardGrid';
 import { PrimaryButton } from '@app/modules/common/components/PrimaryButton';
 import { Search } from '@app/modules/common/components/Search';
-import { Table } from '@app/modules/common/components/Table';
 import { SortOrder } from '@app/modules/common/constants/sort-order';
 import {
   addToastMessage,
   ToastType,
 } from '@app/modules/common/redux/toast.slice';
 import { AddItemModal } from '@app/modules/items/containers/AddItemModal';
-import { DeleteItemModal } from '@app/modules/items/containers/DeleteUserItemModal';
 import { EditItemModal } from '@app/modules/items/containers/EditItemModal';
 import { GetItemsSortBy } from '@app/modules/items/dtos/get-items.dto';
 import {
@@ -32,14 +31,11 @@ const Items: NextPage = () => {
   const [itemsSearchName, setItemsSearchName] = useState('');
   const [itemsPage, setItemsPage] = useState(1);
   const [itemsCount, setItemsCount] = useState(10);
-  const [itemsSortBy, setItemsSortBy] = useState(GetItemsSortBy.Name);
-  const [itemsSortOrder, setItemsSortOrder] = useState(SortOrder.Asc);
 
   enum OpenModal {
     None,
     Add,
     Edit,
-    Delete,
   }
   const [openModal, setOpenModal] = useState(OpenModal.None);
   const [selectedItem, setSelectedItem] = useState<Item | undefined>();
@@ -64,18 +60,11 @@ const Items: NextPage = () => {
         searchName: itemsSearchName,
         page: itemsPage,
         count: itemsCount,
-        sortBy: itemsSortBy,
-        sortOrder: itemsSortOrder,
+        sortBy: GetItemsSortBy.Name,
+        sortOrder: SortOrder.Asc,
       }),
     );
-  }, [
-    itemsSearchName,
-    itemsPage,
-    itemsCount,
-    itemsSortBy,
-    itemsSortOrder,
-    dispatch,
-  ]);
+  }, [itemsSearchName, itemsPage, itemsCount, dispatch]);
 
   useEffect(() => {
     setIsAdmin(user?.roles?.includes(UserRole.Admin) ?? false);
@@ -104,17 +93,6 @@ const Items: NextPage = () => {
   }, [getItemsError, dispatch]);
 
   // Handlers
-
-  const handleSelectHeader = (headerSortBy: string): void => {
-    if (itemsSortBy === headerSortBy) {
-      setItemsSortOrder(
-        itemsSortOrder === SortOrder.Asc ? SortOrder.Desc : SortOrder.Asc,
-      );
-    } else {
-      setItemsSortOrder(SortOrder.Asc);
-    }
-    setItemsSortBy(headerSortBy as GetItemsSortBy);
-  };
 
   const handleSelectPage = (page: number): void => {
     setItemsPage(page);
@@ -153,11 +131,6 @@ const Items: NextPage = () => {
     setSelectedItem(undefined);
   };
 
-  const handleClickDelete = (id: string): void => {
-    setOpenModal(OpenModal.Delete);
-    setSelectedItem(items.find((item) => item.id === id));
-  };
-
   const handleDelete = (): void => {
     if (itemsPage > 1 && items.length === 1) {
       setItemsPage(itemsPage - 1);
@@ -183,8 +156,10 @@ const Items: NextPage = () => {
         </Head>
 
         <div className="flex w-full justify-between pb-6 max-md:flex-col max-md:items-center max-md:space-y-4 md:flex-row md:items-start">
-          <span className="pl-4 text-4xl font-bold">Item Descriptions</span>
-          <div className="flex space-x-4 pr-2">
+          <span className="pl-4 text-center text-4xl font-bold">
+            Item Descriptions
+          </span>
+          <div className="flex space-x-4 px-2">
             {isAdmin && (
               <div className="w-24">
                 <PrimaryButton value="+ Add" onClick={handleClickAdd} />
@@ -194,36 +169,31 @@ const Items: NextPage = () => {
           </div>
         </div>
         <div className="h-0 w-full grow-[1]">
-          <Table
+          <CardGrid
             totalCount={totalItemCount}
-            headers={[
-              {
-                value: 'Name',
-                className: 'w-1/2',
-                sortBy: GetItemsSortBy.Name,
-              },
-              {
-                value: 'Description',
-                className: 'w-1/2',
-              },
-            ]}
             data={items.map((item) => {
               return {
                 key: item.id,
-                values: [item.name, item.description],
-                isEditable: isAdmin,
-                isDeletable: isAdmin,
+                title: `${item.name}${
+                  item.description ? `\n\n${item.description}` : ''
+                }`,
+                node: (
+                  <>
+                    <span className="line-clamp-2 whitespace-pre-wrap break-words text-xl font-bold">
+                      {item.name}
+                    </span>
+                    <span className="line-clamp-2 whitespace-pre-wrap break-words pl-6 font-normal">
+                      {item.description}
+                    </span>
+                  </>
+                ),
               };
             })}
-            sortBy={itemsSortBy}
-            sortOrder={itemsSortOrder}
             page={itemsPage}
             count={itemsCount}
-            onSelectHeader={handleSelectHeader}
+            onSelectCard={handleClickEdit}
             onSelectPage={handleSelectPage}
             onSelectCount={handleSelectCount}
-            onEdit={isAdmin ? handleClickEdit : undefined}
-            onDelete={isAdmin ? handleClickDelete : undefined}
           />
         </div>
       </div>
@@ -241,16 +211,6 @@ const Items: NextPage = () => {
                   <EditItemModal
                     item={selectedItem}
                     onEdit={handleEdit}
-                    onClose={handleCloseModal}
-                  />
-                );
-              }
-              break;
-            case OpenModal.Delete:
-              if (selectedItem) {
-                return (
-                  <DeleteItemModal
-                    item={selectedItem}
                     onDelete={handleDelete}
                     onClose={handleCloseModal}
                   />

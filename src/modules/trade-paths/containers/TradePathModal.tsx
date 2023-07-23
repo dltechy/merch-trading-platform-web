@@ -1,5 +1,6 @@
 import { FC } from 'react';
 
+import { Card } from '@app/modules/common/components/Card';
 import { Modal } from '@app/modules/common/components/Modal';
 import { PrimaryButton } from '@app/modules/common/components/PrimaryButton';
 import { UserItem } from '@app/modules/user-items/schemas/user-item';
@@ -19,7 +20,7 @@ export const TradePathModal: FC<Props> = ({ tradePath, onClose }) => {
   // Elements
 
   const renderItemCard: (userItem: UserItem) => JSX.Element = (userItem) => (
-    <div className="flex w-full flex-col rounded-3xl border-2 border-black bg-blue-100 px-6 py-4">
+    <Card className="flex w-full flex-col bg-blue-100 px-6 py-4">
       <span className="truncate text-xl font-bold" title={userItem.item?.name}>
         {userItem.item?.name}
       </span>
@@ -27,7 +28,7 @@ export const TradePathModal: FC<Props> = ({ tradePath, onClose }) => {
         <span className="pl-6 font-bold italic">Owner: </span>
         <span className="font-normal italic">{userItem.user?.displayName}</span>
       </div>
-    </div>
+    </Card>
   );
 
   return (

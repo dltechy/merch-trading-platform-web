@@ -3,9 +3,9 @@ import Head from 'next/head';
 import { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
+import { CardGrid } from '@app/modules/common/components/CardGrid';
 import { PrimaryButton } from '@app/modules/common/components/PrimaryButton';
 import { Search } from '@app/modules/common/components/Search';
-import { Table } from '@app/modules/common/components/Table';
 import { SortOrder } from '@app/modules/common/constants/sort-order';
 import {
   addToastMessage,
@@ -13,7 +13,6 @@ import {
 } from '@app/modules/common/redux/toast.slice';
 import { toggleIsMyItems } from '@app/modules/user-items/redux/user-items.slice';
 import { AddUserWishModal } from '@app/modules/user-wishes/containers/AddUserWishModal';
-import { DeleteUserWishModal } from '@app/modules/user-wishes/containers/DeleteUserWishModal';
 import { EditUserWishModal } from '@app/modules/user-wishes/containers/EditUserWishModal';
 import { GetUserWishesSortBy } from '@app/modules/user-wishes/dtos/get-user-wishes.dto';
 import { getUserWishesRequest } from '@app/modules/user-wishes/redux/user-wishes.slice';
@@ -28,16 +27,11 @@ const MyWishes: NextPage = () => {
   const [userWishesSearchItemName, setUserWishesSearchItemName] = useState('');
   const [userWishesPage, setUserWishesPage] = useState(1);
   const [userWishesCount, setUserWishesCount] = useState(10);
-  const [userWishesSortBy, setUserWishesSortBy] = useState(
-    GetUserWishesSortBy.ItemName,
-  );
-  const [userWishesSortOrder, setUserWishesSortOrder] = useState(SortOrder.Asc);
 
   enum OpenModal {
     None,
     Add,
     Edit,
-    Delete,
   }
   const [openModal, setOpenModal] = useState(OpenModal.None);
   const [selectedWish, setSelectedWish] = useState<UserWish | undefined>();
@@ -66,16 +60,14 @@ const MyWishes: NextPage = () => {
         searchItemName: userWishesSearchItemName,
         page: userWishesPage,
         count: userWishesCount,
-        sortBy: userWishesSortBy,
-        sortOrder: userWishesSortOrder,
+        sortBy: GetUserWishesSortBy.ItemName,
+        sortOrder: SortOrder.Asc,
       }),
     );
   }, [
     userWishesSearchItemName,
     userWishesPage,
     userWishesCount,
-    userWishesSortBy,
-    userWishesSortOrder,
     user,
     isMyItems,
     dispatch,
@@ -105,17 +97,6 @@ const MyWishes: NextPage = () => {
 
   const handleClickIsMyWishes = (): void => {
     dispatch(toggleIsMyItems());
-  };
-
-  const handleSelectHeader = (headerSortBy: string): void => {
-    if (userWishesSortBy === headerSortBy) {
-      setUserWishesSortOrder(
-        userWishesSortOrder === SortOrder.Asc ? SortOrder.Desc : SortOrder.Asc,
-      );
-    } else {
-      setUserWishesSortOrder(SortOrder.Asc);
-    }
-    setUserWishesSortBy(headerSortBy as GetUserWishesSortBy);
   };
 
   const handleSelectPage = (page: number): void => {
@@ -155,11 +136,6 @@ const MyWishes: NextPage = () => {
     setSelectedWish(undefined);
   };
 
-  const handleClickDelete = (id: string): void => {
-    setOpenModal(OpenModal.Delete);
-    setSelectedWish(userWishes.find((userWish) => userWish.id === id));
-  };
-
   const handleDelete = (): void => {
     if (userWishesPage > 1 && userWishes.length === 1) {
       setUserWishesPage(userWishesPage - 1);
@@ -187,8 +163,8 @@ const MyWishes: NextPage = () => {
 
         <div className="flex w-full flex-col pb-6">
           <div className="flex w-full justify-between max-md:flex-col max-md:items-center max-md:space-y-4 md:flex-row md:items-start">
-            <span className="pl-4 text-4xl font-bold">Wishes</span>
-            <div className="flex space-x-4 pr-2">
+            <span className="pl-4 text-center text-4xl font-bold">Wishes</span>
+            <div className="flex space-x-4 px-2">
               {user && (
                 <div className="w-24">
                   <PrimaryButton value="+ Add" onClick={handleClickAdd} />
@@ -214,36 +190,37 @@ const MyWishes: NextPage = () => {
           )}
         </div>
         <div className="h-0 w-full grow-[1]">
-          <Table
+          <CardGrid
             totalCount={totalUserWishCount}
-            headers={[
-              {
-                value: 'Name',
-                className: 'w-1/2',
-                sortBy: GetUserWishesSortBy.ItemName,
-              },
-              {
-                value: 'Remarks',
-                className: 'w-1/2',
-              },
-            ]}
             data={userWishes.map((userWish) => {
               return {
                 key: userWish.id,
-                values: [userWish.item?.name ?? '', userWish.remarks],
-                isEditable: userWish.user?.id === user?.id,
-                isDeletable: userWish.user?.id === user?.id,
+                title: `${userWish.item?.name ?? ''}${
+                  userWish.remarks ? `\n\n${userWish.remarks}` : ''
+                }\n\nBy: ${userWish.user?.displayName}`,
+                node: (
+                  <>
+                    <span className="line-clamp-2 whitespace-pre-wrap break-words text-xl font-bold">
+                      {userWish.item?.name}
+                    </span>
+                    <span className="line-clamp-2 whitespace-pre-wrap break-words pl-6 font-normal">
+                      {userWish.remarks}
+                    </span>
+                    <div className="truncate">
+                      <span className="pl-6 font-bold italic">By: </span>
+                      <span className="font-normal italic">
+                        {userWish.user?.displayName}
+                      </span>
+                    </div>
+                  </>
+                ),
               };
             })}
-            sortBy={userWishesSortBy}
-            sortOrder={userWishesSortOrder}
             page={userWishesPage}
             count={userWishesCount}
-            onSelectHeader={handleSelectHeader}
+            onSelectCard={handleClickEdit}
             onSelectPage={handleSelectPage}
             onSelectCount={handleSelectCount}
-            onEdit={handleClickEdit}
-            onDelete={handleClickDelete}
           />
         </div>
       </div>
@@ -260,16 +237,6 @@ const MyWishes: NextPage = () => {
                 <EditUserWishModal
                   userWish={selectedWish}
                   onEdit={handleEdit}
-                  onClose={handleCloseModal}
-                />
-              );
-            }
-            break;
-          case OpenModal.Delete:
-            if (selectedWish) {
-              return (
-                <DeleteUserWishModal
-                  userWish={selectedWish}
                   onDelete={handleDelete}
                   onClose={handleCloseModal}
                 />

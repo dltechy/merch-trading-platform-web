@@ -3,16 +3,15 @@ import Head from 'next/head';
 import { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
+import { CardGrid } from '@app/modules/common/components/CardGrid';
 import { PrimaryButton } from '@app/modules/common/components/PrimaryButton';
 import { Search } from '@app/modules/common/components/Search';
-import { Table } from '@app/modules/common/components/Table';
 import { SortOrder } from '@app/modules/common/constants/sort-order';
 import {
   addToastMessage,
   ToastType,
 } from '@app/modules/common/redux/toast.slice';
 import { AddUserItemModal } from '@app/modules/user-items/containers/AddUserItemModal';
-import { DeleteUserItemModal } from '@app/modules/user-items/containers/DeleteUserItemModal';
 import { EditUserItemModal } from '@app/modules/user-items/containers/EditUserItemModal';
 import { GetUserItemsSortBy } from '@app/modules/user-items/dtos/get-user-items.dto';
 import {
@@ -30,16 +29,11 @@ const MyItems: NextPage = () => {
   const [userItemsSearchItemName, setUserItemsSearchItemName] = useState('');
   const [userItemsPage, setUserItemsPage] = useState(1);
   const [userItemsCount, setUserItemsCount] = useState(10);
-  const [userItemsSortBy, setUserItemsSortBy] = useState(
-    GetUserItemsSortBy.ItemName,
-  );
-  const [userItemsSortOrder, setUserItemsSortOrder] = useState(SortOrder.Asc);
 
   enum OpenModal {
     None,
     Add,
     Edit,
-    Delete,
   }
   const [openModal, setOpenModal] = useState(OpenModal.None);
   const [selectedItem, setSelectedItem] = useState<UserItem | undefined>();
@@ -66,16 +60,14 @@ const MyItems: NextPage = () => {
         searchItemName: userItemsSearchItemName,
         page: userItemsPage,
         count: userItemsCount,
-        sortBy: userItemsSortBy,
-        sortOrder: userItemsSortOrder,
+        sortBy: GetUserItemsSortBy.ItemName,
+        sortOrder: SortOrder.Asc,
       }),
     );
   }, [
     userItemsSearchItemName,
     userItemsPage,
     userItemsCount,
-    userItemsSortBy,
-    userItemsSortOrder,
     user,
     isMyItems,
     dispatch,
@@ -105,17 +97,6 @@ const MyItems: NextPage = () => {
 
   const handleClickIsMyItems = (): void => {
     dispatch(toggleIsMyItems());
-  };
-
-  const handleSelectHeader = (headerSortBy: string): void => {
-    if (userItemsSortBy === headerSortBy) {
-      setUserItemsSortOrder(
-        userItemsSortOrder === SortOrder.Asc ? SortOrder.Desc : SortOrder.Asc,
-      );
-    } else {
-      setUserItemsSortOrder(SortOrder.Asc);
-    }
-    setUserItemsSortBy(headerSortBy as GetUserItemsSortBy);
   };
 
   const handleSelectPage = (page: number): void => {
@@ -155,11 +136,6 @@ const MyItems: NextPage = () => {
     setSelectedItem(undefined);
   };
 
-  const handleClickDelete = (id: string): void => {
-    setOpenModal(OpenModal.Delete);
-    setSelectedItem(userItems.find((userItem) => userItem.id === id));
-  };
-
   const handleDelete = (): void => {
     if (userItemsPage > 1 && userItems.length === 1) {
       setUserItemsPage(userItemsPage - 1);
@@ -186,8 +162,8 @@ const MyItems: NextPage = () => {
 
         <div className="flex w-full flex-col pb-6">
           <div className="flex w-full justify-between max-md:flex-col max-md:items-center max-md:space-y-4 md:flex-row md:items-start">
-            <span className="pl-4 text-4xl font-bold">Items</span>
-            <div className="flex space-x-4 pr-2">
+            <span className="pl-4 text-center text-4xl font-bold">Items</span>
+            <div className="flex space-x-4 px-2">
               {user && (
                 <div className="w-24">
                   <PrimaryButton value="+ Add" onClick={handleClickAdd} />
@@ -213,36 +189,37 @@ const MyItems: NextPage = () => {
           )}
         </div>
         <div className="h-0 w-full grow-[1]">
-          <Table
+          <CardGrid
             totalCount={totalUserItemCount}
-            headers={[
-              {
-                value: 'Name',
-                className: 'w-1/2',
-                sortBy: GetUserItemsSortBy.ItemName,
-              },
-              {
-                value: 'Remarks',
-                className: 'w-1/2',
-              },
-            ]}
             data={userItems.map((userItem) => {
               return {
                 key: userItem.id,
-                values: [userItem.item?.name ?? '', userItem.remarks],
-                isEditable: userItem.user?.id === user?.id,
-                isDeletable: userItem.user?.id === user?.id,
+                title: `${userItem.item?.name ?? ''}${
+                  userItem.remarks ? `\n\n${userItem.remarks}` : ''
+                }\n\nOwner: ${userItem.user?.displayName}`,
+                node: (
+                  <>
+                    <span className="line-clamp-2 whitespace-pre-wrap break-words text-xl font-bold">
+                      {userItem.item?.name}
+                    </span>
+                    <span className="line-clamp-2 whitespace-pre-wrap break-words pl-6 font-normal">
+                      {userItem.remarks}
+                    </span>
+                    <div className="truncate">
+                      <span className="pl-6 font-bold italic">Owner: </span>
+                      <span className="font-normal italic">
+                        {userItem.user?.displayName}
+                      </span>
+                    </div>
+                  </>
+                ),
               };
             })}
-            sortBy={userItemsSortBy}
-            sortOrder={userItemsSortOrder}
             page={userItemsPage}
             count={userItemsCount}
-            onSelectHeader={handleSelectHeader}
+            onSelectCard={handleClickEdit}
             onSelectPage={handleSelectPage}
             onSelectCount={handleSelectCount}
-            onEdit={handleClickEdit}
-            onDelete={handleClickDelete}
           />
         </div>
       </div>
@@ -259,16 +236,6 @@ const MyItems: NextPage = () => {
                 <EditUserItemModal
                   userItem={selectedItem}
                   onEdit={handleEdit}
-                  onClose={handleCloseModal}
-                />
-              );
-            }
-            break;
-          case OpenModal.Delete:
-            if (selectedItem) {
-              return (
-                <DeleteUserItemModal
-                  userItem={selectedItem}
                   onDelete={handleDelete}
                   onClose={handleCloseModal}
                 />
