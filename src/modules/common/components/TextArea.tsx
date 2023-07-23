@@ -11,7 +11,7 @@ interface Props
 export const TextArea: FC<Props> = ({ className = '', hasError, ...rest }) => {
   return (
     <textarea
-      className={`w-full rounded-3xl font-normal ${className} ${
+      className={`w-full rounded-3xl font-normal disabled:bg-gray-200 ${className} ${
         hasError ? 'border-2 border-red-500' : ''
       }`}
       {...rest}

@@ -37,6 +37,7 @@ const MyWishes: NextPage = () => {
   const [selectedWish, setSelectedWish] = useState<UserWish | undefined>();
 
   const user = useSelector((state: AppState) => state.auth.user);
+  const isAdmin = useSelector((state: AppState) => state.auth.isAdmin);
 
   const isMyItems = useSelector((state: AppState) => state.userItems.isMyItems);
   const totalUserWishCount = useSelector(
@@ -235,6 +236,8 @@ const MyWishes: NextPage = () => {
             if (selectedWish) {
               return (
                 <EditUserWishModal
+                  user={user}
+                  isAdmin={isAdmin}
                   userWish={selectedWish}
                   onEdit={handleEdit}
                   onDelete={handleDelete}

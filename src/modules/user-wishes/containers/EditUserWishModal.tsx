@@ -12,6 +12,7 @@ import {
   addToastMessage,
   ToastType,
 } from '@app/modules/common/redux/toast.slice';
+import { User } from '@app/modules/users/schemas/user';
 import { AppState } from '@app/redux/store';
 
 import {
@@ -26,6 +27,8 @@ import { UserWish } from '../schemas/user-wish';
 import { DeleteUserWishModal } from './DeleteUserWishModal';
 
 interface Props {
+  user?: User;
+  isAdmin: boolean;
   userWish: UserWish;
   onEdit: () => void;
   onDelete: () => void;
@@ -33,6 +36,8 @@ interface Props {
 }
 
 export const EditUserWishModal: FC<Props> = ({
+  user,
+  isAdmin,
   userWish,
   onEdit,
   onDelete,
@@ -176,17 +181,37 @@ export const EditUserWishModal: FC<Props> = ({
                     hasError={!!errors.remarks && touched.remarks}
                     error={errors.remarks}
                     value={values.remarks}
+                    disabled={!user || user.id !== userWish.user?.id}
                     onBlur={handleBlur}
                     onChange={handleChange}
                   />
                 </div>
                 <div className="mt-8 flex flex-row-reverse space-x-4 space-x-reverse">
-                  <PrimaryButton
-                    value={isUpdateUserWishLoading ? 'Editing...' : 'Edit'}
-                    disabled={isUpdateUserWishLoading}
-                  />
-                  <NegativeButton value="Delete" onClick={handleClickDelete} />
-                  <SecondaryButton value="Cancel" onClick={handleClose} />
+                  {isAdmin || (user && user.id === userWish.user?.id) ? (
+                    <>
+                      {user && user.id === userWish.user?.id && (
+                        <PrimaryButton
+                          value={
+                            isUpdateUserWishLoading ? 'Editing...' : 'Edit'
+                          }
+                          disabled={isUpdateUserWishLoading}
+                        />
+                      )}
+                      {(isAdmin || (user && user.id === userWish.user?.id)) && (
+                        <NegativeButton
+                          value="Delete"
+                          onClick={handleClickDelete}
+                        />
+                      )}
+                      <SecondaryButton value="Cancel" onClick={handleClose} />
+                    </>
+                  ) : (
+                    <div className="mt-8 flex w-full justify-end">
+                      <div className="w-1/4">
+                        <PrimaryButton value="Close" onClick={handleClose} />
+                      </div>
+                    </div>
+                  )}
                 </div>
               </form>
             );

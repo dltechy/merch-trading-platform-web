@@ -39,6 +39,7 @@ const MyItems: NextPage = () => {
   const [selectedItem, setSelectedItem] = useState<UserItem | undefined>();
 
   const user = useSelector((state: AppState) => state.auth.user);
+  const isAdmin = useSelector((state: AppState) => state.auth.isAdmin);
 
   const isMyItems = useSelector((state: AppState) => state.userItems.isMyItems);
   const totalUserItemCount = useSelector(
@@ -234,6 +235,8 @@ const MyItems: NextPage = () => {
             if (selectedItem) {
               return (
                 <EditUserItemModal
+                  user={user}
+                  isAdmin={isAdmin}
                   userItem={selectedItem}
                   onEdit={handleEdit}
                   onDelete={handleDelete}

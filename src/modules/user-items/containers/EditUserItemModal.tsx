@@ -12,6 +12,7 @@ import {
   addToastMessage,
   ToastType,
 } from '@app/modules/common/redux/toast.slice';
+import { User } from '@app/modules/users/schemas/user';
 import { AppState } from '@app/redux/store';
 
 import {
@@ -26,6 +27,8 @@ import { UserItem } from '../schemas/user-item';
 import { DeleteUserItemModal } from './DeleteUserItemModal';
 
 interface Props {
+  user?: User;
+  isAdmin: boolean;
   userItem: UserItem;
   onEdit: () => void;
   onDelete: () => void;
@@ -33,6 +36,8 @@ interface Props {
 }
 
 export const EditUserItemModal: FC<Props> = ({
+  user,
+  isAdmin,
   userItem,
   onEdit,
   onDelete,
@@ -176,17 +181,35 @@ export const EditUserItemModal: FC<Props> = ({
                     hasError={!!errors.remarks && touched.remarks}
                     error={errors.remarks}
                     value={values.remarks}
+                    disabled={!user || user.id !== userItem.user?.id}
                     onBlur={handleBlur}
                     onChange={handleChange}
                   />
                 </div>
                 <div className="mt-8 flex flex-row-reverse space-x-4 space-x-reverse">
-                  <PrimaryButton
-                    value={isUpdateUserItemLoading ? 'Editing...' : 'Edit'}
-                    disabled={isUpdateUserItemLoading}
-                  />
-                  <NegativeButton value="Delete" onClick={handleClickDelete} />
-                  <SecondaryButton value="Cancel" onClick={handleClose} />
+                  {isAdmin || (user && user.id === userItem.user?.id) ? (
+                    <>
+                      {user && user.id === userItem.user?.id && (
+                        <PrimaryButton
+                          value={
+                            isUpdateUserItemLoading ? 'Editing...' : 'Edit'
+                          }
+                          disabled={isUpdateUserItemLoading}
+                        />
+                      )}
+                      <NegativeButton
+                        value="Delete"
+                        onClick={handleClickDelete}
+                      />
+                      <SecondaryButton value="Cancel" onClick={handleClose} />
+                    </>
+                  ) : (
+                    <div className="mt-8 flex w-full justify-end">
+                      <div className="w-1/4">
+                        <PrimaryButton value="Close" onClick={handleClose} />
+                      </div>
+                    </div>
+                  )}
                 </div>
               </form>
             );

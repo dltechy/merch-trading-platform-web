@@ -19,7 +19,6 @@ import {
   resetItemsState,
 } from '@app/modules/items/redux/items.slice';
 import { Item } from '@app/modules/items/schemas/item';
-import { UserRole } from '@app/modules/users/schemas/user-role';
 import { AppState } from '@app/redux/store';
 
 const Items: NextPage = () => {
@@ -27,7 +26,6 @@ const Items: NextPage = () => {
 
   const appName = process.env.NEXT_PUBLIC_APP_NAME;
 
-  const [isAdmin, setIsAdmin] = useState(false);
   const [itemsSearchName, setItemsSearchName] = useState('');
   const [itemsPage, setItemsPage] = useState(1);
   const [itemsCount, setItemsCount] = useState(10);
@@ -40,7 +38,7 @@ const Items: NextPage = () => {
   const [openModal, setOpenModal] = useState(OpenModal.None);
   const [selectedItem, setSelectedItem] = useState<Item | undefined>();
 
-  const user = useSelector((state: AppState) => state.auth.user);
+  const isAdmin = useSelector((state: AppState) => state.auth.isAdmin);
 
   const totalItemCount = useSelector(
     (state: AppState) => state.items.totalCount,
@@ -65,10 +63,6 @@ const Items: NextPage = () => {
       }),
     );
   }, [itemsSearchName, itemsPage, itemsCount, dispatch]);
-
-  useEffect(() => {
-    setIsAdmin(user?.roles?.includes(UserRole.Admin) ?? false);
-  }, [user]);
 
   useEffect(() => {
     getItems();
@@ -198,30 +192,33 @@ const Items: NextPage = () => {
         </div>
       </div>
 
-      {isAdmin &&
-        ((): JSX.Element | undefined => {
-          switch (openModal) {
-            case OpenModal.Add:
+      {((): JSX.Element | undefined => {
+        switch (openModal) {
+          case OpenModal.Add:
+            if (isAdmin) {
               return (
                 <AddItemModal onAdd={handleAdd} onClose={handleCloseModal} />
               );
-            case OpenModal.Edit:
-              if (selectedItem) {
-                return (
-                  <EditItemModal
-                    item={selectedItem}
-                    onEdit={handleEdit}
-                    onDelete={handleDelete}
-                    onClose={handleCloseModal}
-                  />
-                );
-              }
-              break;
-            default:
-              break;
-          }
-          return undefined;
-        })()}
+            }
+            break;
+          case OpenModal.Edit:
+            if (selectedItem) {
+              return (
+                <EditItemModal
+                  isAdmin={isAdmin}
+                  item={selectedItem}
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+                  onClose={handleCloseModal}
+                />
+              );
+            }
+            break;
+          default:
+            break;
+        }
+        return undefined;
+      })()}
     </>
   );
 };

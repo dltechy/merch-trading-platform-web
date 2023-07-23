@@ -7,11 +7,13 @@ import {
 } from '@app/modules/common/states/api-state';
 import { InitializationState } from '@app/modules/common/states/initialization-state';
 import { User } from '@app/modules/users/schemas/user';
+import { UserRole } from '@app/modules/users/schemas/user-role';
 
 import { LoginDto } from '../dtos/login.dto';
 
 export interface AuthState {
   user?: User;
+  isAdmin: boolean;
   initializationState: InitializationState;
   login: ApiState;
   logout: ApiState;
@@ -19,6 +21,7 @@ export interface AuthState {
 }
 
 const initialState: AuthState = {
+  isAdmin: false,
   initializationState: InitializationState.Uninitialized,
   login: { ...initialApiState },
   logout: { ...initialApiState },
@@ -49,6 +52,7 @@ export const authSlice = createSlice({
       const newState = { ...state };
       if (action.payload.user) {
         delete newState.user;
+        newState.isAdmin = initialState.isAdmin;
       }
       if (action.payload.initializationState) {
         newState.initializationState = initialState.initializationState;
@@ -77,6 +81,7 @@ export const authSlice = createSlice({
       return {
         ...state,
         user: action.payload,
+        isAdmin: action.payload.roles.includes(UserRole.Admin),
         login: {
           isTriggered: true,
           isLoading: false,
@@ -105,6 +110,7 @@ export const authSlice = createSlice({
     logoutSuccess: ({ user, ...state }: AuthState) => {
       return {
         ...state,
+        isAdmin: false,
         login: {
           isTriggered: true,
           isLoading: false,
@@ -138,6 +144,7 @@ export const authSlice = createSlice({
       return {
         ...state,
         user: action.payload,
+        isAdmin: action.payload.roles.includes(UserRole.Admin),
         initializationState: InitializationState.Initialized,
         checkLoginState: {
           isTriggered: true,

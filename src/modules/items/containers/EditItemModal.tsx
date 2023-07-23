@@ -20,6 +20,7 @@ import { Item } from '../schemas/item';
 import { DeleteItemModal } from './DeleteUserItemModal';
 
 interface Props {
+  isAdmin: boolean;
   item: Item;
   onEdit: () => void;
   onDelete: () => void;
@@ -27,6 +28,7 @@ interface Props {
 }
 
 export const EditItemModal: FC<Props> = ({
+  isAdmin,
   item,
   onEdit,
   onDelete,
@@ -157,6 +159,7 @@ export const EditItemModal: FC<Props> = ({
                   error={errors.name}
                   type="text"
                   value={values.name}
+                  disabled={!isAdmin}
                   onBlur={handleBlur}
                   onChange={handleChange}
                 />
@@ -167,17 +170,31 @@ export const EditItemModal: FC<Props> = ({
                   hasError={!!errors.description && touched.description}
                   error={errors.description}
                   value={values.description}
+                  disabled={!isAdmin}
                   onBlur={handleBlur}
                   onChange={handleChange}
                 />
               </div>
               <div className="mt-8 flex flex-row-reverse space-x-4 space-x-reverse">
-                <PrimaryButton
-                  value={isUpdateItemLoading ? 'Editing...' : 'Edit'}
-                  disabled={isUpdateItemLoading}
-                />
-                <NegativeButton value="Delete" onClick={handleClickDelete} />
-                <SecondaryButton value="Cancel" onClick={handleClose} />
+                {isAdmin ? (
+                  <>
+                    <PrimaryButton
+                      value={isUpdateItemLoading ? 'Editing...' : 'Edit'}
+                      disabled={isUpdateItemLoading}
+                    />
+                    <NegativeButton
+                      value="Delete"
+                      onClick={handleClickDelete}
+                    />
+                    <SecondaryButton value="Cancel" onClick={handleClose} />
+                  </>
+                ) : (
+                  <div className="mt-8 flex w-full justify-end">
+                    <div className="w-1/4">
+                      <PrimaryButton value="Close" onClick={handleClose} />
+                    </div>
+                  </div>
+                )}
               </div>
             </form>
           )}
