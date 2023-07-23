@@ -63,6 +63,8 @@ export const Header: FC = () => {
     if (pathname.search(pageRegex) !== -1) {
       Router.replace('/items');
     }
+
+    setIsSidebarOpen(false);
   }, [pathname]);
 
   useEffect(() => {
