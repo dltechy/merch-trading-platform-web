@@ -136,8 +136,14 @@ export const CardGrid: FC<Props> = ({
         </div>
       </div>
 
-      <div className="flex w-full justify-between px-4 pt-4 text-lg max-md:items-start md:items-center">
-        <div className="flex max-md:w-1/2 max-md:flex-col max-md:pt-14 md:whitespace-pre">
+      <div className="flex w-full items-start justify-between px-4 text-lg md:items-center md:pt-4">
+        <div
+          className={`flex max-md:w-1/2 ${
+            page != null && count != null
+              ? 'max-md:flex-col max-md:pt-10 md:whitespace-pre'
+              : 'whitespace-pre max-md:pt-2'
+          }`}
+        >
           <span className="font-bold">Total count: </span>
           <span>{totalCount}</span>
         </div>
@@ -183,7 +189,7 @@ export const CardGrid: FC<Props> = ({
             </div>
             <label
               htmlFor="cardCount"
-              className="flex max-md:w-1/2 max-md:flex-col max-md:items-end max-md:pt-14 md:items-center md:whitespace-pre"
+              className="flex items-end max-md:w-1/2 max-md:flex-col max-md:pt-10 md:items-center md:whitespace-pre"
             >
               <span className="pr-2 font-bold hover:cursor-text">
                 Items per page:{' '}

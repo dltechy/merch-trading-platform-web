@@ -156,14 +156,16 @@ const MyItems: NextPage = () => {
 
   return (
     <>
-      <div className="flex h-full w-full flex-col items-start justify-center p-8">
+      <div className="flex h-full w-full flex-col items-start justify-center px-4 pb-4 pt-1 md:p-8">
         <Head>
           <title>{`${appName} - Items`}</title>
         </Head>
 
-        <div className="flex w-full flex-col pb-6">
-          <div className="flex w-full justify-between max-md:flex-col max-md:items-center max-md:space-y-4 md:flex-row md:items-start">
-            <span className="pl-4 text-center text-4xl font-bold">Items</span>
+        <div className="flex w-full flex-col pb-2 md:pb-6">
+          <div className="flex w-full items-center justify-between max-md:flex-col max-md:space-y-2 md:items-start">
+            <span className="text-center text-4xl font-bold md:pl-4">
+              Items
+            </span>
             <div className="flex space-x-4 px-2">
               {user && (
                 <div className="w-24">
@@ -176,7 +178,7 @@ const MyItems: NextPage = () => {
           {user && (
             <label
               htmlFor="isMyItems"
-              className="mt-3 flex w-fit cursor-pointer flex-row-reverse items-center justify-end p-1 md:ml-3"
+              className="mt-2 flex w-fit cursor-pointer flex-row-reverse items-center justify-end p-1 md:ml-3 md:mt-3"
             >
               <span className="pl-2 font-semibold">Only show my items</span>
               <input

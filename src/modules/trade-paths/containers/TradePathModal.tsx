@@ -43,7 +43,7 @@ export const TradePathModal: FC<Props> = ({ tradePath, onClose }) => {
     <Modal title="Trade Path" onPressEscape={handleClose}>
       <div className="flex h-full flex-col overflow-auto">
         <div className="flex w-full justify-center overflow-auto">
-          <div className="flex w-4/5 flex-col items-center space-y-2">
+          <div className="flex w-full flex-col items-center space-y-2 md:w-4/5">
             {renderItemCard(tradePath[0])}
             {tradePath.slice(1).map((userItem, index) => {
               return (

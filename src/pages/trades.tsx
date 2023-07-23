@@ -194,12 +194,12 @@ const FindTrades: NextPage = () => {
 
   return (
     <>
-      <div className="flex h-full w-full flex-col items-start justify-center p-8">
+      <div className="flex h-full w-full flex-col items-start justify-center px-4 pb-4 pt-1 md:p-8">
         <Head>
           <title>{`${appName} - Trades`}</title>
         </Head>
-        <div className="flex w-full justify-between pb-6 max-md:flex-col max-md:items-center max-md:space-y-4 md:flex-row md:items-start">
-          <span className="pl-4 text-4xl font-bold">Available Trades</span>
+        <div className="flex w-full items-center justify-between pb-2 max-md:flex-col max-md:space-y-2 md:items-start md:pb-6">
+          <span className="text-4xl font-bold md:pl-4">Available Trades</span>
         </div>
         <div className="h-0 w-full grow-[1]">
           <Table

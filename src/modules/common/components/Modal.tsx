@@ -62,7 +62,7 @@ export const Modal: FC<Props> = ({
 
         <FormCard
           title={title}
-          className="flex max-h-full flex-col max-sm:w-full sm:w-3/4 lg:w-1/2"
+          className="flex max-h-full w-full flex-col sm:w-3/4 lg:w-1/2"
         >
           {children}
         </FormCard>
