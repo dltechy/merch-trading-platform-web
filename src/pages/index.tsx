@@ -11,7 +11,7 @@ const Home: NextPage = () => {
   // Effects
 
   useEffect(() => {
-    Router.push('/login');
+    Router.push('/items');
   }, []);
 
   // Elements
