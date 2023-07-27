@@ -1,6 +1,6 @@
 {
   "name": "merch-trading-platform-web",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "private": true,
   "scripts": {
     "prebuild": "rimraf .next",
