@@ -116,8 +116,8 @@ export const CardGrid: FC<Props> = ({
                   key={key}
                   className={`flex h-fit w-full flex-col px-6 py-4 ${
                     hoveredCardKey === key
-                      ? 'cursor-pointer bg-blue-400'
-                      : 'bg-blue-100 '
+                      ? 'cursor-pointer bg-card-hovered-primary text-card-hovered-secondary'
+                      : 'bg-card-primary text-card-secondary '
                   }`}
                   title={title}
                   tabIndex={onSelectCard ? 0 : -1}
@@ -154,8 +154,8 @@ export const CardGrid: FC<Props> = ({
               <input
                 className={`p-2 underline-offset-4 ${
                   page > 1
-                    ? 'cursor-pointer hover:text-blue-800 hover:underline'
-                    : 'text-gray-500'
+                    ? 'cursor-pointer hover:text-link-hovered hover:underline'
+                    : 'text-disabled-secondary'
                 }`}
                 type="button"
                 value="<"
@@ -166,7 +166,7 @@ export const CardGrid: FC<Props> = ({
                 return (
                   <input
                     key={pageNumber}
-                    className={`cursor-pointer p-2 underline-offset-4 hover:text-blue-800 ${
+                    className={`cursor-pointer p-2 underline-offset-4 hover:text-link-hovered ${
                       pageNumber === page ? 'underline' : 'hover:underline'
                     }`}
                     type="button"
@@ -178,8 +178,8 @@ export const CardGrid: FC<Props> = ({
               <input
                 className={`p-2 underline-offset-4 ${
                   page < totalPageCount
-                    ? 'cursor-pointer hover:text-blue-800 hover:underline'
-                    : 'text-gray-500'
+                    ? 'cursor-pointer hover:text-link-hovered hover:underline'
+                    : 'text-disabled-secondary'
                 }`}
                 type="button"
                 value=">"

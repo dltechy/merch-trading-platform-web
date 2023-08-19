@@ -25,7 +25,7 @@ export const LabelledTextBox: FC<Props> = ({
       <span>{label}</span>
       <TextBox id={id} className="mt-1" hasError={hasError} {...rest} />
       {hasError && (
-        <span className="mt-1 pl-3 text-sm font-normal italic text-red-500">
+        <span className="mt-1 pl-3 text-sm font-normal italic text-negative-primary">
           {error}
         </span>
       )}

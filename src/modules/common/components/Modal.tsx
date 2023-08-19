@@ -55,7 +55,7 @@ export const Modal: FC<Props> = ({
     >
       <div className="fixed left-0 top-0 flex h-screen w-screen items-center justify-center">
         <div
-          className="absolute -z-10 h-full w-full bg-[rgba(0,0,0,0.5)]"
+          className="absolute -z-10 h-full w-full bg-dark-overlay opacity-50"
           role="presentation"
           onClick={handleClickOutside}
         />

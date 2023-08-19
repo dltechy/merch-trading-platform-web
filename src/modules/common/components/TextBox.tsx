@@ -11,8 +11,8 @@ interface Props
 export const TextBox: FC<Props> = ({ className = '', hasError, ...rest }) => {
   return (
     <input
-      className={`w-full rounded-full font-normal disabled:bg-gray-200 ${className} ${
-        hasError ? 'border-2 border-red-500' : ''
+      className={`w-full rounded-full bg-primary font-normal disabled:bg-input-disabled-primary disabled:text-input-disabled-secondary ${className} ${
+        hasError ? 'border-2 border-negative-primary' : ''
       }`}
       {...rest}
     />

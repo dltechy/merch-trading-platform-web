@@ -20,7 +20,7 @@ export const Dropdown: FC<Props> = ({
     <select
       id={id}
       name={id}
-      className={`w-full rounded-full ${className}`}
+      className={`w-full rounded-full bg-primary text-secondary ${className}`}
       value={selectedValue}
       {...rest}
     >

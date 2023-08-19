@@ -1,9 +1,9 @@
 import { FC, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
+import { CancelButton } from '@app/modules/common/components/CancelButton';
 import { Modal } from '@app/modules/common/components/Modal';
 import { PrimaryButton } from '@app/modules/common/components/PrimaryButton';
-import { SecondaryButton } from '@app/modules/common/components/SecondaryButton';
 import {
   addToastMessage,
   ToastType,
@@ -106,7 +106,7 @@ export const DeleteUserItemModal: FC<Props> = ({
           onClick={handleDelete}
           disabled={isDeleteUserItemLoading}
         />
-        <SecondaryButton value="Cancel" onClick={handleClose} />
+        <CancelButton value="Cancel" onClick={handleClose} />
       </div>
     </Modal>
   );

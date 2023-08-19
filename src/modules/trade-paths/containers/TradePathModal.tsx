@@ -21,7 +21,7 @@ export const TradePathModal: FC<Props> = ({ tradePath, onClose }) => {
 
   const renderItemCard: (userItem: UserItem) => JSX.Element = (userItem) => (
     <Card
-      className="flex w-full flex-col bg-blue-100 px-6 py-4"
+      className="flex w-full flex-col bg-card-primary px-6 py-4 text-card-secondary"
       title={`${userItem.item?.name ?? ''}\n\n${userItem.remarks}\n\nOwner: ${
         userItem.user?.displayName
       }`}

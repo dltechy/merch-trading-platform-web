@@ -5,10 +5,10 @@ import Router from 'next/router';
 import { ReactNode, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
+import { CancelButton } from '@app/modules/common/components/CancelButton';
 import { FormCard } from '@app/modules/common/components/FormCard';
 import { LabelledTextBox } from '@app/modules/common/components/LabelledTextBox';
 import { PrimaryButton } from '@app/modules/common/components/PrimaryButton';
-import { SecondaryButton } from '@app/modules/common/components/SecondaryButton';
 import {
   addToastMessage,
   ToastType,
@@ -202,7 +202,7 @@ const Register: NextPage = () => {
                   value={isRegisterLoading ? 'Registering...' : 'Register'}
                   disabled={isRegisterLoading}
                 />
-                <SecondaryButton value="Cancel" onClick={handleCancel} />
+                <CancelButton value="Cancel" onClick={handleCancel} />
               </div>
             </form>,
           )

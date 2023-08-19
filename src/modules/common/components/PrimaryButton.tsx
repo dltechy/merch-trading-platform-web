@@ -12,7 +12,7 @@ export const PrimaryButton: FC<Props> = ({
 }) => {
   return (
     <input
-      className={`w-full cursor-pointer rounded-full bg-blue-500 px-3 py-2 font-semibold text-white hover:bg-blue-600 disabled:cursor-auto disabled:bg-gray-200 disabled:text-gray-400 ${className}`}
+      className={`w-full cursor-pointer rounded-full bg-button-primary px-3 py-2 font-semibold text-button-secondary hover:bg-button-hovered-primary hover:text-button-hovered-secondary disabled:cursor-auto disabled:bg-button-disabled-primary disabled:text-button-disabled-secondary ${className}`}
       type={type}
       {...rest}
     />

@@ -2,11 +2,11 @@ import { Formik } from 'formik';
 import { FC, useCallback, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
+import { CancelButton } from '@app/modules/common/components/CancelButton';
 import { LabelledTextArea } from '@app/modules/common/components/LabelledTextArea';
 import { LabelledTextBox } from '@app/modules/common/components/LabelledTextBox';
 import { Modal } from '@app/modules/common/components/Modal';
 import { PrimaryButton } from '@app/modules/common/components/PrimaryButton';
-import { SecondaryButton } from '@app/modules/common/components/SecondaryButton';
 import {
   addToastMessage,
   ToastType,
@@ -134,7 +134,7 @@ export const AddItemModal: FC<Props> = ({ onAdd, onClose }) => {
                 value={isCreateItemLoading ? 'Adding...' : 'Add'}
                 disabled={isCreateItemLoading}
               />
-              <SecondaryButton value="Cancel" onClick={handleClose} />
+              <CancelButton value="Cancel" onClick={handleClose} />
             </div>
           </form>
         )}

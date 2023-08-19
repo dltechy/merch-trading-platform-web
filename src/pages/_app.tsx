@@ -13,7 +13,7 @@ const App: FC<AppProps> = ({ Component, ...rest }) => {
 
   return (
     <Provider store={store}>
-      <div className="flex h-screen w-screen flex-col">
+      <div className="flex h-screen w-screen flex-col bg-primary text-secondary">
         <Header />
 
         <Component {...props.pageProps} />

@@ -165,7 +165,7 @@ export const Table: FC<Props> = ({
         <div className="h-full overflow-auto">
           <table className="w-full table-fixed">
             <thead className="sticky top-0">
-              <tr className="bg-blue-600 text-white [&>th+th]:border-l-2 [&>th+th]:border-cyan-400">
+              <tr className="bg-header-primary text-header-secondary [&>th+th]:border-l-2 [&>th+th]:border-divider">
                 {headers.map(
                   ({ value, className = '', sortBy: headerSortBy }, index) => {
                     return (
@@ -210,13 +210,13 @@ export const Table: FC<Props> = ({
                 return (
                   <tr
                     key={key}
-                    className={`font-semibold [&>td+td]:border-l-2 [&>td+td]:border-cyan-400 ${
+                    className={`font-semibold [&>td+td]:border-l-2 [&>td+td]:border-divider ${
                       hoveredRowKey === key
-                        ? 'cursor-pointer bg-blue-400'
-                        : 'odd:bg-blue-200 even:bg-blue-100'
+                        ? 'cursor-pointer bg-table-row-hovered-primary text-table-row-hovered-secondary'
+                        : 'odd:bg-table-row-odd-primary odd:text-table-row-odd-secondary even:bg-table-row-even-primary even:text-table-row-even-secondary'
                     } ${
                       onEdit || onDelete
-                        ? '[&>:last-child]:odd:bg-blue-200 [&>:last-child]:even:bg-blue-100'
+                        ? '[&>:last-child]:odd:bg-table-row-odd-primary [&>:last-child]:odd:text-table-row-odd-secondary [&>:last-child]:even:bg-table-row-even-primary [&>:last-child]:even:text-table-row-even-secondary'
                         : ''
                     }`}
                     tabIndex={onSelectRow ? 0 : -1}
@@ -307,7 +307,7 @@ export const Table: FC<Props> = ({
                       <tr
                         // eslint-disable-next-line react/no-array-index-key
                         key={`placeholder-${indexRow}`}
-                        className="font-semibold odd:bg-blue-200 even:bg-blue-100 [&>td+td]:border-l-2 [&>td+td]:border-cyan-400"
+                        className="font-semibold odd:bg-table-row-odd-primary odd:text-table-row-odd-secondary even:bg-table-row-even-primary even:text-table-row-even-secondary [&>td+td]:border-l-2 [&>td+td]:border-divider"
                       >
                         {headers.map((_placeholderCol, indexCol) => {
                           return (
@@ -370,8 +370,8 @@ export const Table: FC<Props> = ({
               <input
                 className={`p-2 underline-offset-4 ${
                   page > 1
-                    ? 'cursor-pointer hover:text-blue-800 hover:underline'
-                    : 'text-gray-500'
+                    ? 'cursor-pointer hover:text-link-hovered hover:underline'
+                    : 'text-disabled-secondary'
                 }`}
                 type="button"
                 value="<"
@@ -382,7 +382,7 @@ export const Table: FC<Props> = ({
                 return (
                   <input
                     key={pageNumber}
-                    className={`cursor-pointer p-2 underline-offset-4 hover:text-blue-800 ${
+                    className={`cursor-pointer p-2 underline-offset-4 hover:text-link-hovered ${
                       pageNumber === page ? 'underline' : 'hover:underline'
                     }`}
                     type="button"
@@ -394,8 +394,8 @@ export const Table: FC<Props> = ({
               <input
                 className={`p-2 underline-offset-4 ${
                   page < totalPageCount
-                    ? 'cursor-pointer hover:text-blue-800 hover:underline'
-                    : 'text-gray-500'
+                    ? 'cursor-pointer hover:text-link-hovered hover:underline'
+                    : 'text-disabled-secondary'
                 }`}
                 type="button"
                 value=">"

@@ -170,7 +170,7 @@ const Login: NextPage = () => {
               <div className="mt-4">
                 <span>No account yet? </span>
                 <Link
-                  className="text-blue-600 underline visited:text-purple-600 hover:text-blue-800"
+                  className="text-link underline visited:text-link-visited hover:text-link-hovered"
                   href="/register"
                 >
                   Register here

@@ -185,7 +185,7 @@ const MyWishes: NextPage = () => {
               <input
                 id="isMyWishes"
                 type="checkbox"
-                className="cursor-pointer"
+                className="cursor-pointer bg-primary"
                 checked={isMyItems}
                 onClick={handleClickIsMyWishes}
               />

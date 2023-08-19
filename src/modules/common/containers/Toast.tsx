@@ -61,7 +61,7 @@ export const Toast: FC = () => {
 
   return (
     <div
-      className={`fixed left-full top-24 float-right flex h-14 min-w-[12rem] flex-nowrap items-center justify-between space-x-4 whitespace-nowrap rounded-xl border-2 p-4 font-semibold transition-transform ${
+      className={`fixed left-full top-24 float-right flex h-14 min-w-[12rem] flex-nowrap items-center justify-between space-x-4 whitespace-nowrap rounded-xl border-2 p-4 font-semibold text-toast-secondary transition-transform ${
         visibility === Visibility.Hidden ? 'invisible' : 'visible'
       } ${
         visibility === Visibility.Visible
@@ -69,13 +69,13 @@ export const Toast: FC = () => {
           : ''
       } ${
         toastType === ToastType.Info
-          ? 'border-blue-500 bg-blue-300'
-          : 'border-red-500 bg-red-300'
+          ? 'border-toast-info-border bg-toast-info-primary'
+          : 'border-toast-error-border bg-toast-error-primary'
       }`}
     >
       <span>{message}</span>
       <input
-        className="cursor-pointer rounded-md bg-white px-2 hover:bg-gray-200"
+        className="cursor-pointer rounded-md bg-toast-close-button-primary px-2 hover:bg-toast-close-button-hovered-primary"
         type="button"
         value="X"
         onClick={handleClose}

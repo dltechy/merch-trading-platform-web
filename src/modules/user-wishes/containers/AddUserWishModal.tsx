@@ -10,11 +10,11 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 
 import { debounce } from '@app/helpers/timers/debounce.helper';
+import { CancelButton } from '@app/modules/common/components/CancelButton';
 import { LabelledTextArea } from '@app/modules/common/components/LabelledTextArea';
 import { LabelledTextBox } from '@app/modules/common/components/LabelledTextBox';
 import { Modal } from '@app/modules/common/components/Modal';
 import { PrimaryButton } from '@app/modules/common/components/PrimaryButton';
-import { SecondaryButton } from '@app/modules/common/components/SecondaryButton';
 import {
   addToastMessage,
   ToastType,
@@ -279,7 +279,7 @@ export const AddUserWishModal: FC<Props> = ({ onAdd, onClose }) => {
                   value={isCreateUserWishLoading ? 'Adding...' : 'Add'}
                   disabled={isGetItemsLoading || isCreateUserWishLoading}
                 />
-                <SecondaryButton value="Cancel" onClick={handleClose} />
+                <CancelButton value="Cancel" onClick={handleClose} />
               </div>
             </form>
           );

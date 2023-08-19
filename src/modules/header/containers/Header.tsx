@@ -156,18 +156,18 @@ export const Header: FC = () => {
 
   return (
     <>
-      <div className="flex h-16 w-full items-center bg-blue-600">
+      <div className="flex h-16 w-full items-center bg-header-primary">
         <div className="flex h-full w-full flex-row items-center justify-between">
           <div className="flex items-center">
             <ImageButton
               SvgImage={MenuSvg}
-              className="ml-2 aspect-square h-10 rounded-full fill-white p-2 hover:bg-blue-400 hover:fill-black xl:hidden"
+              className="ml-2 aspect-square h-10 rounded-full fill-sidebar-toggle-secondary p-2 hover:bg-sidebar-toggle-hovered-primary hover:fill-sidebar-toggle-hovered-secondary xl:hidden"
               title="Menu"
               onClick={handleOpenMenu}
             />
             <Link
               href="/"
-              className="text-2xl font-bold text-white drop-shadow-[2px_2px_rgba(0,0,0,1)]"
+              className="text-2xl font-bold text-header-secondary drop-shadow-[2px_2px_rgba(0,0,0,1)]"
             >
               <div className="h-full w-full px-2 py-4 xl:px-4">
                 <span>{appName}</span>
@@ -203,11 +203,11 @@ export const Header: FC = () => {
           <div className="max-xl:hidden">
             {isRenderAllowed ? (
               <>
-                <span className="mr-4 whitespace-nowrap font-semibold text-white">
+                <span className="mr-4 whitespace-nowrap font-semibold text-header-secondary">
                   {user?.displayName ? `Hello, ${user.displayName}` : ''}
                 </span>
                 <input
-                  className="mr-4 cursor-pointer rounded-md bg-white px-3 py-2 font-semibold hover:bg-gray-200"
+                  className="mr-4 cursor-pointer rounded-md bg-header-button-primary px-3 py-2 font-semibold text-header-button-secondary hover:bg-header-button-hovered-primary hover:text-header-button-hovered-secondary"
                   type="submit"
                   value="Logout"
                   onClick={handleLogout}
@@ -216,7 +216,7 @@ export const Header: FC = () => {
             ) : (
               !checkIfInPage('(login|register)') && (
                 <input
-                  className="mr-4 cursor-pointer rounded-md bg-white px-3 py-2 font-semibold hover:bg-gray-200"
+                  className="mr-4 cursor-pointer rounded-md bg-header-button-primary px-3 py-2 font-semibold text-header-button-secondary hover:bg-header-button-hovered-primary hover:text-header-button-hovered-secondary"
                   type="submit"
                   value="Login"
                   onClick={handleLogin}
@@ -229,25 +229,25 @@ export const Header: FC = () => {
 
       {isSidebarOpen && (
         <div className="fixed z-50 flex h-full w-full">
-          <div className="flex h-full w-64 flex-col bg-blue-600">
+          <div className="flex h-full w-64 flex-col bg-header-primary">
             <div className="flex h-16 items-center">
               <ImageButton
                 SvgImage={MenuSvg}
-                className="ml-2 aspect-square h-10 rounded-full fill-white p-2 hover:bg-blue-400 hover:fill-black"
+                className="ml-2 aspect-square h-10 rounded-full fill-sidebar-toggle-secondary p-2 hover:bg-sidebar-toggle-hovered-primary hover:fill-sidebar-toggle-hovered-secondary"
                 title="Menu"
                 onClick={handleCloseMenu}
               />
 
               {isRenderAllowed ? (
                 <div className="p-4">
-                  <span className="mr-4 whitespace-pre-wrap font-semibold text-white">
+                  <span className="mr-4 whitespace-pre-wrap font-semibold text-header-secondary">
                     {user?.displayName ? `${user.displayName}` : ''}
                   </span>
                 </div>
               ) : (
                 <Link
                   href="/"
-                  className="text-2xl font-bold text-white drop-shadow-[2px_2px_rgba(0,0,0,1)]"
+                  className="text-2xl font-bold text-header-secondary drop-shadow-[2px_2px_rgba(0,0,0,1)]"
                 >
                   <div className="h-full w-full px-2 py-4">
                     <span>{appName}</span>
@@ -288,7 +288,7 @@ export const Header: FC = () => {
                 <hr />
 
                 <button type="button" onClick={handleLogout}>
-                  <div className="flex w-full items-center text-white hover:bg-cyan-600 hover:text-black">
+                  <div className="flex w-full items-center text-tab-secondary hover:bg-tab-hovered-primary hover:text-tab-hovered-secondary">
                     <div className="flex h-12 items-center px-4 font-semibold">
                       <span className="font-semibold">Logout</span>
                     </div>
@@ -301,7 +301,7 @@ export const Header: FC = () => {
                   <hr />
 
                   <button type="button" onClick={handleLogin}>
-                    <div className="flex w-full items-center text-white hover:bg-cyan-600 hover:text-black">
+                    <div className="flex w-full items-center text-tab-secondary hover:bg-tab-hovered-primary hover:text-tab-hovered-secondary">
                       <div className="flex h-12 items-center px-4 font-semibold">
                         <span className="font-semibold">Login</span>
                       </div>
@@ -313,7 +313,7 @@ export const Header: FC = () => {
           </div>
 
           <input
-            className="grow-[1] bg-[rgba(0,0,0,0.5)]"
+            className="grow-[1] bg-dark-overlay opacity-50"
             type="button"
             onClick={handleCloseMenu}
           />
