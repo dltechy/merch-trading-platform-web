@@ -9,6 +9,7 @@ import {
   resetAuthState,
 } from '@app/modules/auth/redux/auth.slice';
 import { ImageButton } from '@app/modules/common/components/ImageButton';
+import { Theme, toggleTheme } from '@app/modules/common/redux/theme.slice';
 import {
   addToastMessage,
   ToastType,
@@ -16,6 +17,8 @@ import {
 import { InitializationState } from '@app/modules/common/states/initialization-state';
 import { AppState } from '@app/redux/store';
 
+import DarkModeSvg from '@public/images/dark-mode.svg';
+import LightModeSvg from '@public/images/light-mode.svg';
 import MenuSvg from '@public/images/menu.svg';
 
 import { HeaderTab } from '../components/HeaderTab';
@@ -34,6 +37,7 @@ export const Header: FC = () => {
   const [isRenderAllowed, setIsRenderAllowed] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
+  const theme = useSelector((state: AppState) => state.theme.theme);
   const user = useSelector((state: AppState) => state.auth.user);
   const isLogoutTriggered = useSelector(
     (state: AppState) => state.auth.logout.isTriggered,
@@ -132,6 +136,10 @@ export const Header: FC = () => {
 
   // Handlers
 
+  const handleToggleTheme = (): void => {
+    dispatch(toggleTheme());
+  };
+
   const handleLogin = (): void => {
     setIsSidebarOpen(false);
 
@@ -161,7 +169,7 @@ export const Header: FC = () => {
           <div className="flex items-center">
             <ImageButton
               SvgImage={MenuSvg}
-              className="ml-2 aspect-square h-10 rounded-full fill-sidebar-toggle-secondary p-2 hover:bg-sidebar-toggle-hovered-primary hover:fill-sidebar-toggle-hovered-secondary xl:hidden"
+              className="ml-2 aspect-square h-10 rounded-full fill-sidebar-toggle-secondary p-2 hover:bg-sidebar-toggle-hovered-primary hover:fill-sidebar-toggle-hovered-secondary"
               title="Menu"
               onClick={handleOpenMenu}
             />
@@ -169,7 +177,7 @@ export const Header: FC = () => {
               href="/"
               className="text-2xl font-bold text-header-secondary drop-shadow-[2px_2px_rgba(0,0,0,1)]"
             >
-              <div className="h-full w-full px-2 py-4 xl:px-4">
+              <div className="h-full w-full px-2 py-4">
                 <span>{appName}</span>
               </div>
             </Link>
@@ -310,6 +318,32 @@ export const Header: FC = () => {
                 </>
               )
             )}
+
+            <div className="grow-[1]" />
+
+            <div className="mb-2 flex h-12 items-center px-4 text-tab-secondary">
+              <span className="font-semibold">Theme: </span>
+              {theme === Theme.Auto && (
+                <button
+                  className="ml-2 aspect-square h-10 rounded-full p-2 text-sidebar-toggle-secondary hover:bg-sidebar-toggle-hovered-primary hover:text-sidebar-toggle-hovered-secondary"
+                  type="button"
+                  title="Auto"
+                  onClick={handleToggleTheme}
+                >
+                  <span className="h-full w-full cursor-pointer text-lg/none font-semibold">
+                    A
+                  </span>
+                </button>
+              )}
+              {theme !== Theme.Auto && (
+                <ImageButton
+                  SvgImage={theme === Theme.Dark ? DarkModeSvg : LightModeSvg}
+                  className="ml-2 aspect-square h-10 rounded-full fill-sidebar-toggle-secondary p-2 hover:bg-sidebar-toggle-hovered-primary hover:fill-sidebar-toggle-hovered-secondary"
+                  title={theme === Theme.Dark ? 'Dark mode' : 'Light mode'}
+                  onClick={handleToggleTheme}
+                />
+              )}
+            </div>
           </div>
 
           <input
