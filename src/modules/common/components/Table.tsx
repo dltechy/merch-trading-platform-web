@@ -212,7 +212,7 @@ export const Table: FC<Props> = ({
                     key={key}
                     className={`font-semibold [&>td+td]:border-l-2 [&>td+td]:border-cyan-400 ${
                       hoveredRowKey === key
-                        ? `cursor-pointer bg-blue-400`
+                        ? 'cursor-pointer bg-blue-400'
                         : 'odd:bg-blue-200 even:bg-blue-100'
                     } ${
                       onEdit || onDelete

@@ -44,10 +44,10 @@ module.exports = {
 
       const tsconfig = createTsConfig(files);
       if (tsconfig.include.length > 0) {
-        output.push(`tsc --project tsconfig.lintstaged.json --noEmit`);
+        output.push('tsc --project tsconfig.lintstaged.json --noEmit');
       }
 
-      output.push(`jest --clearCache`);
+      output.push('jest --clearCache');
       output.push(`jest --passWithNoTests --findRelatedTests ${filesToLint}`);
 
       output.push('rimraf tsconfig.lintstaged.*');

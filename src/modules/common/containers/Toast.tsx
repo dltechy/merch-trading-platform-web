@@ -70,7 +70,7 @@ export const Toast: FC = () => {
       } ${
         toastType === ToastType.Info
           ? 'border-blue-500 bg-blue-300'
-          : ' border-red-500 bg-red-300'
+          : 'border-red-500 bg-red-300'
       }`}
     >
       <span>{message}</span>
