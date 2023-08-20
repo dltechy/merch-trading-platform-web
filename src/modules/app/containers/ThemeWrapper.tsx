@@ -1,7 +1,7 @@
-import { FC, PropsWithChildren } from 'react';
-import { useSelector } from 'react-redux';
+import { FC, PropsWithChildren, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
-import { Theme } from '@app/modules/common/redux/theme.slice';
+import { setTheme, Theme } from '@app/modules/common/redux/theme.slice';
 import { AppState } from '@app/redux/store';
 
 interface Props extends PropsWithChildren {
@@ -9,7 +9,36 @@ interface Props extends PropsWithChildren {
 }
 
 export const ThemeWrapper: FC<Props> = ({ className = '', children }) => {
+  // Properties
+
   const theme = useSelector((state: AppState) => state.theme.theme);
+
+  const dispatch = useDispatch();
+
+  // Effects & Callbacks
+
+  useEffect(() => {
+    const storedTheme = localStorage.getItem('theme');
+
+    if (storedTheme) {
+      let userTheme: Theme;
+      switch (storedTheme) {
+        case 'dark':
+          userTheme = Theme.Dark;
+          break;
+        case 'light':
+          userTheme = Theme.Light;
+          break;
+        default:
+          userTheme = Theme.Auto;
+          break;
+      }
+
+      dispatch(setTheme(userTheme));
+    }
+  }, [dispatch]);
+
+  // Elements
 
   return (
     <div
