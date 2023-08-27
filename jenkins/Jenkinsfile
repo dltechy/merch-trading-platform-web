@@ -2,6 +2,7 @@ pipeline {
     agent none
 
     environment {
+        INITIAL_SETUP_IMAGE_NAME = '$WEB_CONTAINER_NAME-initial-setup'
         BUILD_DEPENDENCIES_IMAGE_NAME = '$WEB_CONTAINER_NAME-build-dependencies'
         DEPLOY_DEPENDENCIES_IMAGE_NAME = '$WEB_CONTAINER_NAME-deploy-dependencies'
         BUILDER_IMAGE_NAME = '$WEB_CONTAINER_NAME-builder'
@@ -82,13 +83,21 @@ pipeline {
                 }
 
                 sh 'docker build' +
+                    ' --target initial-setup' +
+                    ' -t "' + INITIAL_SETUP_IMAGE_NAME + '":$YARN_LOCK_HASH' +
+                    ' -f $DOCKERFILE_PATH' +
+                    ' .'
+
+                sh 'docker build' +
                     ' --target build-dependencies' +
+                    ' --build-arg INITIAL_SETUP_IMAGE_NAME="' + INITIAL_SETUP_IMAGE_NAME + '":$YARN_LOCK_HASH' +
                     ' -t "' + BUILD_DEPENDENCIES_IMAGE_NAME + '":$YARN_LOCK_HASH' +
                     ' -f $DOCKERFILE_PATH' +
                     ' .'
 
                 sh 'docker build' +
                     ' --target deploy-dependencies' +
+                    ' --build-arg INITIAL_SETUP_IMAGE_NAME="' + INITIAL_SETUP_IMAGE_NAME + '":$YARN_LOCK_HASH' +
                     ' -t "' + DEPLOY_DEPENDENCIES_IMAGE_NAME + '":$YARN_LOCK_HASH' +
                     ' -f $DOCKERFILE_PATH' +
                     ' .'

@@ -108,5 +108,6 @@ dist
 # vercel
 .vercel
 
-# lint-staged
+# Temporary files
+package.min.json
 tsconfig.lintstaged.json
