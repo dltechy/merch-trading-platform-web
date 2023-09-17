@@ -7,7 +7,7 @@ This is the frontend web app of the platform.
 ## Installation
 
 ```bash
-$ yarn install
+$ pnpm install
 ```
 
 - Copy the `.env.example` file:
@@ -19,18 +19,18 @@ $ yarn install
 
 ```bash
 # development
-$ yarn run start
+$ pnpm run start
 
 # watch mode
-$ yarn run start:dev
+$ pnpm run start:dev
 ```
 
 ## Test
 
 ```bash
 # tests
-$ yarn run test
+$ pnpm run test
 
 # test coverage
-$ yarn run test:cov
+$ pnpm run test:cov
 ```

@@ -11,8 +11,8 @@
     "lint:fix": "eslint --max-warnings=0 --fix \"**/*.{js,jsx,ts,tsx}\"",
     "test:clear": "rimraf coverage && jest --clearCache",
     "test": "jest",
-    "test:watch": "yarn test --watch",
-    "test:cov": "yarn test --coverage",
+    "test:watch": "pnpm test --watch",
+    "test:cov": "pnpm test --coverage",
     "precommit": "lint-staged",
     "prepare": "husky install"
   },

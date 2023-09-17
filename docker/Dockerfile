@@ -16,21 +16,21 @@ FROM $INITIAL_SETUP_IMAGE AS tagged-initial-setup
 FROM node AS build-dependencies
 WORKDIR /web
 COPY --from=tagged-initial-setup /web/package.min.json ./package.json
-COPY yarn.lock ./
-RUN yarn install
+COPY pnpm-lock.yaml ./
+RUN pnpm install
 
 FROM node AS deploy-dependencies
 WORKDIR /web
 COPY --from=tagged-initial-setup /web/package.min.json ./package.json
-COPY yarn.lock ./
-RUN yarn install --prod
+COPY pnpm-lock.yaml ./
+RUN pnpm install --prod
 
 FROM $BUILD_DEPENDENCIES_IMAGE AS builder
 COPY .env next.config.js postcss.config.js tailwind.config.js tsconfig.json ./
 COPY styles ./styles/
 COPY public ./public/
 COPY src ./src/
-RUN yarn build
+RUN pnpm build
 
 FROM $BUILDER_IMAGE AS tagged-builder
 
@@ -38,4 +38,4 @@ FROM $DEPLOY_DEPENDENCIES_IMAGE AS deployer
 COPY .env package.json start.js ./
 COPY public ./public/
 COPY --from=tagged-builder /web/.next ./.next/
-CMD yarn start
+CMD pnpm start

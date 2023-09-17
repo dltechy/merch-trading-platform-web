@@ -76,42 +76,42 @@ pipeline {
 
             steps {
                 script {
-                    env.YARN_LOCK_HASH = sh(
-                        script: 'sha256sum -t yarn.lock | cut -d " " -f 1',
+                    env.PNPM_LOCK_HASH = sh(
+                        script: 'sha256sum -t pnpm-lock.yaml | cut -d " " -f 1',
                         returnStdout: true
                     ).trim()
                 }
 
                 sh 'docker build' +
                     ' --target initial-setup' +
-                    ' -t "' + INITIAL_SETUP_IMAGE_NAME + '":$YARN_LOCK_HASH' +
+                    ' -t "' + INITIAL_SETUP_IMAGE_NAME + '":$PNPM_LOCK_HASH' +
                     ' -f $DOCKERFILE_PATH' +
                     ' .'
 
                 sh 'docker build' +
                     ' --target build-dependencies' +
-                    ' --build-arg INITIAL_SETUP_IMAGE_NAME="' + INITIAL_SETUP_IMAGE_NAME + '":$YARN_LOCK_HASH' +
-                    ' -t "' + BUILD_DEPENDENCIES_IMAGE_NAME + '":$YARN_LOCK_HASH' +
+                    ' --build-arg INITIAL_SETUP_IMAGE_NAME="' + INITIAL_SETUP_IMAGE_NAME + '":$PNPM_LOCK_HASH' +
+                    ' -t "' + BUILD_DEPENDENCIES_IMAGE_NAME + '":$PNPM_LOCK_HASH' +
                     ' -f $DOCKERFILE_PATH' +
                     ' .'
 
                 sh 'docker build' +
                     ' --target deploy-dependencies' +
-                    ' --build-arg INITIAL_SETUP_IMAGE_NAME="' + INITIAL_SETUP_IMAGE_NAME + '":$YARN_LOCK_HASH' +
-                    ' -t "' + DEPLOY_DEPENDENCIES_IMAGE_NAME + '":$YARN_LOCK_HASH' +
+                    ' --build-arg INITIAL_SETUP_IMAGE_NAME="' + INITIAL_SETUP_IMAGE_NAME + '":$PNPM_LOCK_HASH' +
+                    ' -t "' + DEPLOY_DEPENDENCIES_IMAGE_NAME + '":$PNPM_LOCK_HASH' +
                     ' -f $DOCKERFILE_PATH' +
                     ' .'
 
                 sh 'docker build' +
                     ' --target builder' +
-                    ' --build-arg BUILD_DEPENDENCIES_IMAGE="' + BUILD_DEPENDENCIES_IMAGE_NAME + '":$YARN_LOCK_HASH' +
+                    ' --build-arg BUILD_DEPENDENCIES_IMAGE="' + BUILD_DEPENDENCIES_IMAGE_NAME + '":$PNPM_LOCK_HASH' +
                     ' -t "' + BUILDER_IMAGE_NAME + '":$BUILD_NUMBER' +
                     ' -f $DOCKERFILE_PATH' +
                     ' .'
 
                 sh 'docker build' +
                     ' --target deployer' +
-                    ' --build-arg DEPLOY_DEPENDENCIES_IMAGE="' + DEPLOY_DEPENDENCIES_IMAGE_NAME + '":$YARN_LOCK_HASH' +
+                    ' --build-arg DEPLOY_DEPENDENCIES_IMAGE="' + DEPLOY_DEPENDENCIES_IMAGE_NAME + '":$PNPM_LOCK_HASH' +
                     ' --build-arg BUILDER_IMAGE="' + BUILDER_IMAGE_NAME + '":$BUILD_NUMBER' +
                     ' -t $WEB_CONTAINER_NAME:$BUILD_NUMBER' +
                     ' -f $DOCKERFILE_PATH' +
