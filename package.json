@@ -11,8 +11,8 @@
     "lint:fix": "eslint --max-warnings=0 --fix \"**/*.{js,jsx,ts,tsx}\"",
     "test:clear": "rimraf coverage && jest --clearCache",
     "test": "jest",
-    "test:watch": "pnpm test --watch",
-    "test:cov": "pnpm test --coverage",
+    "test:watch": "pnpm run test --watch",
+    "test:cov": "pnpm run test --coverage",
     "precommit": "lint-staged",
     "prepare": "husky install"
   },
@@ -64,6 +64,7 @@
     "nodemon": "^2.0.22",
     "postcss": "^8.4.24",
     "prettier": "^2.8.8",
+    "rimraf": "^5.0.5",
     "tailwindcss": "^3.3.2",
     "tailwindcss-themer": "^3.1.0",
     "ts-jest": "^29.1.0",
