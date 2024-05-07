@@ -1,9 +1,7 @@
-version: '3.8'
-
 services:
-    $WEB_CONTAINER_NAME:
-        container_name: $WEB_CONTAINER_NAME
-        image: $WEB_CONTAINER_NAME:$BUILD_NUMBER
+    $TRADE_WEB_CONTAINER_NAME:
+        container_name: $TRADE_WEB_CONTAINER_NAME
+        image: $TRADE_WEB_CONTAINER_NAME:$BUILD_NUMBER
         init: true
         restart: unless-stopped
         networks:
